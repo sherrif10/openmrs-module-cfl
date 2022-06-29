@@ -1,0 +1,133 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public License,
+ * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+ * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+ * <p>
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * graphic logo is a trademark of OpenMRS Inc.
+ */
+
+div#content {
+    padding: 0;
+}
+
+div#content .row {
+    margin: 0;
+}
+
+div#content .row > div.col-12 {
+    padding: 0;
+}
+
+div#body-wrapper,
+div.body-wrapper {
+    padding: 1em 1em 0;
+    margin: 0;
+    background-color: transparent !important;
+}
+
+#body-wrapper.custom-body-wrapper{
+    background-color: #E7F6FB;
+}
+
+form#login-form {
+    display: flex;
+    justify-content: center;
+}
+
+form#login-form p {
+    margin-right: 0 !important;
+}
+
+form#login-form p input.login-input {
+    background-color: #00455c;
+    background-image: none;
+    color: white;
+}
+
+form#login-form input.form-control-lg.credential-input {
+    width: 100%;
+}
+
+.field-set-wrapper {
+    width: 100%;
+    max-width: 930px;
+    border: 0px;
+}
+
+#title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #10708E;
+}
+
+#log-in-wrapper {
+    margin-bottom: 5px;
+}
+
+.log-in-header-text {
+    font-weight: bold;
+    margin-left: 15px;
+    padding-bottom: 10px;
+    font-size: 16px;
+    color: #2B3640;
+}
+
+#main-content {
+    background-color: white;
+    border-radius: 3px;
+    padding: 3rem 1rem 1rem;
+    display: grid;
+    grid-template-areas:
+            "username-input password-input"
+            ". log-in-button"
+            ". cannot-log-in-button";
+    column-gap: 3rem;
+}
+
+@media only screen and (max-width: 768px) {
+    #main-content {
+        padding: 1rem;
+        grid-template-areas:
+                "username-input"
+                "password-input"
+                "log-in-button"
+                "cannot-log-in-button";
+    }
+}
+
+#main-content p:nth-child(1) {
+    grid-area: username-input;
+}
+
+#main-content p:nth-child(2) {
+    grid-area: password-input;
+}
+
+#main-content p:nth-child(3) {
+    grid-area: log-in-button;
+}
+
+#main-content p:nth-child(4) {
+    grid-area: cannot-log-in-button;
+}
+
+#username {
+    border-radius: 0;
+}
+
+#password {
+    border-radius: 0;
+}
+
+.form-control.credential-input:focus {
+    border-color: #10708E;
+    border-width: 2px;
+    box-shadow: none;
+}
+
+p {
+    font-family: CircularStd-Book !important;
+}

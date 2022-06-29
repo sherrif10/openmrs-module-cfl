@@ -1,0 +1,102 @@
+<!--
+  ~ This Source Code Form is subject to the terms of the Mozilla Public License,
+  ~ v. 2.0. If a copy of the MPL was not distributed with this file, You can
+  ~ obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+  ~ the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+  ~ <p>
+  ~ Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+  ~ graphic logo is a trademark of OpenMRS Inc.
+  -->
+
+<htmlform formUuid="39258edb-92c5-11eb-bf66-0242ac120002" formName="Discontinue program form"
+          formEncounterType="f1c23f25-20e1-4503-b09e-116aba0a6063" formVersion="1.0">
+    <uiInclude provider="cfl" css="htmlForm.css"/>
+
+    <style type="text/css">
+        .date-container {
+            margin-right: 50px;
+        }
+
+        #buttons {
+            margin-left: 10px;
+        }
+
+        .section {
+            padding: 0px !important;
+        }
+
+        #currentTreatmentsInfo {
+            display:none;
+            color: red;
+        }
+    </style>
+
+    <ifMode mode="VIEW" include="false">
+        <!-- Treatments Info -->
+        <span class="display-none">
+            <lookup complexExpression = "
+                &lt;script type=&quot;text/javascript&quot;>
+                    try {
+                        window.treatments = JSON.parse('$treatments');
+                    } catch (exception) {}
+                &lt;/script>
+            "/>
+        </span>
+    </ifMode>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var isCurrentTreatmentExist = false;
+
+            const treatments = window.treatments;
+            if (treatments &amp;&amp; treatments.length) {
+                treatments.forEach((treatment) => {
+                    if (treatment.current == true) {
+                        isCurrentTreatmentExist = true;
+                        return false;
+                    }
+                });
+            }
+
+            if (isCurrentTreatmentExist) {
+                $('#currentTreatmentsInfo').show();
+                $('input.submitButton.confirm.right').attr('disabled', true);
+                $('input.submitButton.confirm.right').attr('style', 'background-color: #999 !important');
+            }
+        });
+    </script>
+
+    <div id="currentTreatmentsInfo"><h3>Closing the program can only be done when all treatments have ended.</h3>
+        <br></br>
+    </div>
+
+    <h2>Discontinuation form</h2>
+    <br></br>
+
+    <div class="date-container">
+        <div class="section">
+            <p>
+                <label><uimessage code="Date"/></label>
+                <encounterDate id="encounterDate" default="now" />
+            </p>
+        </div>
+    </div>
+
+    <div class="subsection-by-indentation">
+        <div class="section">
+            <p>
+                <label><uimessage code="Reason"/></label>
+                <obs conceptId="CIEL:162169" style="textarea" rows="5"/>
+            </p>
+        </div>
+    </div>
+
+    <ifMode mode="VIEW" include="false">
+        <div id="buttons">
+            <submit submitClass="confirm right" submitCode="general.save"/>
+            <button type="button" class="cancel"><uimessage code="general.cancel"/></button>
+        </div>
+    </ifMode>
+
+    <completeProgram programId="06c596e7-53dd-44c1-9609-f1406fd9e76d"/>
+</htmlform>

@@ -1,0 +1,20 @@
+[
+  {
+    "id": "org.openmrs.cfl.userAccount.personAttributeEditEmail",
+    "extensionPointId": "userAccount.personAttributeEditFragment",
+    "extensionParams": {
+      "title":"emailAttribute",
+      "type":"personAttribute",
+      "label": "Email",
+      "formFieldName": "personEmailId",
+      "uuid": "58cb9e76-75a1-4f49-956f-4ff6d0e02312",
+      "provider": "cfl",
+      "fragment": "manageAccount/text",
+      "config": {
+        "required": true,
+        "regex": "/(.+)@(.+){2,}\\.(.+){2,}/",
+        "regexMessage": "Not a valid email!"
+      }
+    }
+  }
+]

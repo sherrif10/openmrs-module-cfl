@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  ~ This Source Code Form is subject to the terms of the Mozilla Public License,
+  ~ v. 2.0. If a copy of the MPL was not distributed with this file, You can
+  ~ obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+  ~ the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+  ~ <p>
+  ~ Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+  ~ graphic logo is a trademark of OpenMRS Inc.
+  -->
+
+<dataset>
+
+    <person
+            person_id="1"
+            gender="M"
+            dead="false"
+            creator="1"
+            date_created="2022-06-15 00:00:00.0"
+            voided="false"
+            void_reason=""
+            uuid="150e4f49-ec8f-11ec-90cf-0242ac130002"/>
+
+    <person
+            person_id="2"
+            gender="M"
+            dead="false"
+            creator="1"
+            date_created="2022-06-15 00:00:00.0"
+            voided="false"
+            void_reason=""
+            uuid="150e4f49-ec8f-11ec-90cf-0242ac130003"/>
+
+    <person
+            person_id="3"
+            gender="M"
+            dead="false"
+            creator="1"
+            date_created="2022-06-15 00:00:00.0"
+            voided="false"
+            void_reason=""
+            uuid="150e4f49-ec8f-11ec-90cf-0242ac130004"/>
+
+    <users
+            user_id="1"
+            system_id="admin"
+            username="admin"
+            person_id="1"
+            creator="1"
+            date_created="2022-06-15 00:00:00.0"
+            retired="false"
+            uuid="150e4f49-ec8f-11ec-90cf-0242ac130005" />
+
+    <users
+            user_id="2"
+            system_id="daemon"
+            username="daemon"
+            person_id="2"
+            creator="1"
+            date_created="2022-06-15 00:00:00.0"
+            retired="false"
+            uuid="150e4f49-ec8f-11ec-90cf-0242ac130006" />
+
+    <users
+            user_id="3"
+            system_id="cfldoctor1"
+            username="cfldoctor1"
+            person_id="3"
+            creator="1"
+            date_created="2022-06-15 00:00:00.0"
+            retired="false"
+            uuid="150e4f49-ec8f-11ec-90cf-0242ac130007" />
+</dataset>

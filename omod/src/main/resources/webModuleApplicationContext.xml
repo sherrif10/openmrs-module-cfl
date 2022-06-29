@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ This Source Code Form is subject to the terms of the Mozilla Public License,
+  ~ v. 2.0. If a copy of the MPL was not distributed with this file, You can
+  ~ obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+  ~ the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+  ~ <p>
+  ~ Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+  ~ graphic logo is a trademark of OpenMRS Inc.
+  -->
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    <bean class="org.openmrs.ui.framework.StandardModuleUiConfiguration">
+        <property name="moduleId" value="${project.parent.artifactId}"/>
+    </bean>
+
+    <bean class="org.openmrs.ui.framework.page.GlobalResourceIncluder">
+        <property name="resources">
+            <list>
+                <bean class="org.openmrs.ui.framework.resource.Resource">
+                    <property name="category" value="css" />
+                    <property name="providerName" value="${project.parent.artifactId}" />
+                    <property name="resourcePath" value="styles/referenceapplication.css" />
+                    <property name="priority" value="-100" />
+                </bean>
+                <bean class="org.openmrs.ui.framework.resource.Resource">
+                    <property name="category" value="css"/>
+                    <property name="providerName" value="${project.parent.artifactId}"/>
+                    <property name="resourcePath" value="styles/cfl.css"/>
+                    <property name="priority" value="-195"/>
+                </bean>
+                <bean class="org.openmrs.ui.framework.resource.Resource">
+                    <property name="category" value="js"/>
+                    <property name="providerName" value="${project.parent.artifactId}"/>
+                    <property name="resourcePath" value="scripts/customizeNavButton.js"/>
+                    <property name="priority" value="-195"/>
+                </bean>
+                <bean class="org.openmrs.ui.framework.resource.Resource">
+                    <property name="category" value="js"/>
+                    <property name="providerName" value="${project.parent.artifactId}"/>
+                    <property name="resourcePath" value="scripts/load-cfl-ui-overrides.js"/>
+                    <property name="priority" value="-195"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+</beans>

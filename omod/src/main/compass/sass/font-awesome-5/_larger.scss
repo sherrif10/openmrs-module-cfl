@@ -1,0 +1,33 @@
+/*!
+ * This Source Code Form is subject to the terms of the Mozilla Public License,
+ * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+ * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+ * <p>
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * graphic logo is a trademark of OpenMRS Inc.
+ */
+
+// Icon Sizes
+// -------------------------
+
+// makes the font 33% larger relative to the icon container
+.#{$fa-css-prefix}-lg {
+  font-size: (4em / 3);
+  line-height: (3em / 4);
+  vertical-align: -.0667em;
+}
+
+.#{$fa-css-prefix}-xs {
+  font-size: .75em;
+}
+
+.#{$fa-css-prefix}-sm {
+  font-size: .875em;
+}
+
+@for $i from 1 through 10 {
+  .#{$fa-css-prefix}-#{$i}x {
+    font-size: $i * 1em;
+  }
+}

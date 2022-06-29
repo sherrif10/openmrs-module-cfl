@@ -1,0 +1,117 @@
+<!--
+  ~ This Source Code Form is subject to the terms of the Mozilla Public License,
+  ~ v. 2.0. If a copy of the MPL was not distributed with this file, You can
+  ~ obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+  ~ the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+  ~ <p>
+  ~ Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+  ~ graphic logo is a trademark of OpenMRS Inc.
+  -->
+
+<org.openmrs.module.emrapi.metadata.MetadataPackagesConfig>
+    <packages>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>07_Location_Attribute_Types</filenameBase>
+            <groupUuid>9d5c3faa-17cf-4b0d-92bc-40901b4ccea5</groupUuid>
+            <version>1</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>08_Homepage_Apps</filenameBase>
+            <groupUuid>67da6de0-c193-4f22-b7d5-95c2a1642ea3</groupUuid>
+            <version>4</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>09_Visits_Apps</filenameBase>
+            <groupUuid>761ba249-42f0-4a9c-ab9d-5b0c42cb6fc1</groupUuid>
+            <version>3</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>10_SMS_Apps</filenameBase>
+            <groupUuid>f4aa3110-a4f4-4b46-9745-e42dd19acb0f</groupUuid>
+            <version>1</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>11_Callflows_Apps</filenameBase>
+            <groupUuid>5f6e848b-65e2-498c-8d8f-5b5c651fb10b</groupUuid>
+            <version>1</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>12_ETL_Apps</filenameBase>
+            <groupUuid>cc7b8cd3-9bc0-4499-8495-d62e789ef03e</groupUuid>
+            <version>1</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>13_Messages_Apps</filenameBase>
+            <groupUuid>ffd6e949-06a7-4b00-b4aa-ab9484a87a69</groupUuid>
+            <version>1</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>14_Person_dashboard_actions</filenameBase>
+            <groupUuid>b5586ef9-f0ea-44f0-8c98-e5f24407a01e</groupUuid>
+            <version>2</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>15_Person_dashboard_header</filenameBase>
+            <groupUuid>5118cfa4-0557-4126-8c37-a1989ed32c22</groupUuid>
+            <version>2</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>16_Person_dashboard_widgets</filenameBase>
+            <groupUuid>52cd2085-b348-4d3e-9071-4fcc39531b41</groupUuid>
+            <version>2</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>18_CfL_Configure_Metadata_Apps</filenameBase>
+            <groupUuid>d624e6f7-0163-4949-b2d8-c8d8eee5b653</groupUuid>
+            <version>2</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>19_Patient_dashboard_header</filenameBase>
+            <groupUuid>2a1dd23a-8099-4c07-ab82-b638dc966967</groupUuid>
+            <version>2</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>21_OpenMRS_Base_Config_App</filenameBase>
+            <groupUuid>1b55cb93-c6a5-4791-a276-9e63761af74b</groupUuid>
+            <version>2</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>22_OpenMRS_Base_PersonAttributeTypes</filenameBase>
+            <groupUuid>f591df2a-0e38-467f-bcfe-ee945eca76ca</groupUuid>
+            <version>1</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <!-- This package must be imported before 20_Program_Form package -->
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>20_Reason_for_ART_answers_conceptSources</filenameBase>
+            <groupUuid>82e7583e-5928-4ab5-a160-7774187c98c5</groupUuid>
+            <version>1</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>20_Program_Form</filenameBase>
+            <groupUuid>8ed2b61b-8829-448b-95a1-b468201846e3</groupUuid>
+            <version>3</version>
+            <importMode>PARENT_AND_CHILD</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>23_Adherence_Weekly_Actor_Question</filenameBase>
+            <groupUuid>e2c4f6ba-9bc1-422c-86ed-6e9306c90e14</groupUuid>
+            <version>1</version>
+            <importMode>PARENT_AND_CHILD</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+    </packages>
+</org.openmrs.module.emrapi.metadata.MetadataPackagesConfig>

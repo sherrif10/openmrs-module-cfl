@@ -1,0 +1,1154 @@
+<!--
+  ~ This Source Code Form is subject to the terms of the Mozilla Public License,
+  ~ v. 2.0. If a copy of the MPL was not distributed with this file, You can
+  ~ obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+  ~ the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+  ~ <p>
+  ~ Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+  ~ graphic logo is a trademark of OpenMRS Inc.
+  -->
+
+<htmlform formUuid="ad796f8c-b966-11eb-9ad8-0242ac120002" formName="Program Form"
+          formEncounterType="b3af129b-90c9-4f84-966e-f4f9515083e6" formVersion="1.0">
+    <uiInclude provider="cfl" css="htmlForm.css"/>
+    <style type="text/css">
+        #htmlform {
+            border: 0;
+            background: none;
+            padding: 0;
+            overflow: initial;
+        }
+
+        #htmlform .treatment-details-table th {
+            font-weight: bold;
+        }
+
+        #htmlform table.treatment-details-table,
+        #htmlform table.treatment-details-table thead,
+        #htmlform table.treatment-details-table thead tr,
+        #htmlform table.treatment-details-table thead tr th {
+            background-color: transparent !important;
+        }
+
+        #htmlform .treatment-details-table tr {
+            border: none !important;
+        }
+
+        #htmlform .treatment-details-table tr:nth-child(odd) td {
+            background-color: #f2f2f2 !important;
+        }
+
+        #htmlform .treatment-details-table td {
+            color: inherit;
+            cursor: default;
+            padding: 5px 10px;
+        }
+
+        #htmlform htmlform input:not([type='button']),
+        #htmlform htmlform select,
+        #htmlform htmlform label {
+            height: 2.5rem;
+        }
+
+        #htmlform htmlform .error {
+            color: red;
+        }
+
+        #title {
+            margin-bottom: 1.5rem;
+        }
+    </style>
+
+    <ifMode mode="VIEW" include="false">
+        <!-- Metadata -->
+        <div id="metadata" style="display: none">
+            <p>
+                <encounterDate id="encounterDate" default="now" showTime="false"/>
+            </p>
+            <p>
+                <label>
+                    <uimessage code="coreapps.patientDashBoard.provider"/>
+                </label>
+                <span>
+                    <encounterProvider default="currentUser" required="true"/>
+                </span>
+            </p>
+            <p>
+                <label>
+                    <uimessage code="coreapps.patientDashBoard.location"/>
+                </label>
+                <span>
+                    <encounterLocation default="SessionAttribute:emrContext.sessionLocationId"/>
+                </span>
+            </p>
+        </div>
+        <!-- Regimens Info -->
+        <span id="js-regimens-info" class="display-none">
+            <lookup complexExpression = "
+                #set($resultText = '|')
+
+                #foreach($regimen in $regimens)
+                    #set($resultText = $resultText.concat($regimen.name).concat(':'))
+
+                    #foreach($drug in $regimen.regimenDrugs)
+                        #set($resultText = $resultText.concat($drug.drug.name).concat('_').concat($drug.doseUnits.name).concat('_').concat($drug.dose).concat('_').concat($drug.frequency.name).concat(';'))
+                    #end
+                
+                    #set($resultText = $resultText.concat('|'))
+
+                #end
+
+                #set($resultText = $resultText.trim())
+
+                $!{resultText}
+            "/>
+        </span>
+        <!-- Treatments Info -->
+        <span class="display-none">
+            <lookup complexExpression = "
+                &lt;script type=&quot;text/javascript&quot;>
+                    try {
+                        window.treatments = JSON.parse('$treatments');
+                    } catch (exception) {}
+                &lt;/script>
+            "/>
+        </span>
+        <!-- Delete Treatment Confirmation Modal -->
+        <div id="js-delete-treatment-confirmation-modal" class="display-none">
+            <uimessage code="cfl.programForm.deleteTreatmentConfirmation"/>
+        </div>
+        <!-- Save Program Modal -->
+        <div id="js-save-program-confirmation-modal" class="display-none">
+            <uimessage code="cfl.programForm.saveProgramConfirmation"/>
+        </div>
+        <!-- Submit Form (Save Program) button - click event is triggered by "Confirm" button in Save Program Modal -->
+        <div id="submit-form" class="display-none">
+            <submit submitClass="confirm right" submitCode="general.save"/>
+        </div>
+    </ifMode>
+
+    <script type="text/javascript">
+        const MAX_TREATMENT_INTERRUPTIONS = 10;
+        const MAX_TREATMENTS = 10;
+        const EXPANDABLE_SECTION_CLASS = 'expandable-section';
+        const IS_CURRENT_REGIMEN = 'true';
+        const IS_NOT_CURRENT_REGIMEN = null;
+
+        const getCurrentTreatmentId = () => parseInt($('#js-current-treatment .js-treatment').attr('id'));
+
+        beforeSubmit.push(function() {
+            let isFormValid = true;
+            const currentTreatmentId = getCurrentTreatmentId();
+
+            for (let i = 0; i &lt; MAX_TREATMENTS; i++) {
+                if ($('#' + i + '-js-treatment-data').is(':visible')) {
+                    //validation of Regimen Name
+                    const regimenField =  $('#' + i + '-js-regimen-name > select');
+                    const regimenValue = regimenField.val();
+                    const regimenErrorField = regimenField.closest('span').find('.error');
+                    regimenErrorField.hide();
+
+                    if (!regimenValue) {
+                        regimenErrorField.html("Required").show();
+                        isFormValid = false;
+                    }
+
+                    //validation of Treatment Date Started
+                    const treatmentDateStartedValue = getValue(i + '-js-treatment-date-started.value');
+                    const treatmentDateStartedErrorField = getField(i + '-js-treatment-date-started.error');
+                    treatmentDateStartedErrorField.hide();
+
+                    if (!treatmentDateStartedValue) {
+                        treatmentDateStartedErrorField.html("Required").show();
+                        isFormValid = false;
+                    }
+
+                    //validation of Reason For Treatment
+                    const treatmentReasonValue = getValue(i + '-js-treatment-reason.value');
+                    const treatmentReasonErrorField = getField(i + '-js-treatment-reason.error');
+                    treatmentReasonErrorField.hide();
+
+                    if (!treatmentReasonValue) {
+                        treatmentReasonErrorField.html("Required").show();
+                        isFormValid = false;
+                    }
+
+                    //validation of Treatment Date Stopped
+                    const treatmentDateStoppedValue = getValue(i + '-js-treatment-date-stopped.value');
+                    const treatmentDateStoppedErrorField = getField(i + '-js-treatment-date-stopped.error');
+                    treatmentDateStoppedErrorField.hide();
+
+                    //Treatment Date Stopped is mandatory only for Historical Treatments
+                    if (i !== currentTreatmentId &amp;&amp; (!treatmentDateStoppedValue)) {
+                        treatmentDateStoppedErrorField.html("Required").show();
+                        isFormValid = false;
+                    }
+
+                    //validate if Treatment Dates do not overlap with other Treatment Dates
+                    const parsedTreatmentDateStarted = Date.parse(treatmentDateStartedValue);
+                    const parsedTreatmentDateStopped = Date.parse(treatmentDateStoppedValue);
+
+                    for (let k = 0; k &lt; MAX_TREATMENTS; k++) {
+                        if (i !== k &amp;&amp; $('#' + k + '-js-treatment-data').is(':visible')) {
+                            const otherParsedTreatmentDateStarted = Date.parse(getValue(k + '-js-treatment-date-started.value'));
+                            const otherParsedTreatmentDateStopped = Date.parse(getValue(k + '-js-treatment-date-stopped.value'));
+                            if (
+                                !parsedTreatmentDateStopped &amp;&amp;
+                                parsedTreatmentDateStarted &lt; otherParsedTreatmentDateStopped &amp;&amp;
+                                parsedTreatmentDateStarted > otherParsedTreatmentDateStarted
+                            ) {
+                                treatmentDateStartedErrorField.html("The regimen dates are in conflict. Regimens cannot overlap. Please correct the date(s).").show();
+                                isFormValid = false;
+                            } else if (
+                                (!otherParsedTreatmentDateStopped &amp;&amp; otherParsedTreatmentDateStarted &lt; parsedTreatmentDateStopped &amp;&amp; otherParsedTreatmentDateStarted > parsedTreatmentDateStarted) ||
+                                (parsedTreatmentDateStarted &lt; otherParsedTreatmentDateStopped &amp;&amp; parsedTreatmentDateStopped > otherParsedTreatmentDateStarted)
+                            ) {
+                                treatmentDateStartedErrorField.html("The regimen dates are in conflict. Regimens cannot overlap. Please correct the date(s).").show();
+                                treatmentDateStoppedErrorField.html("The regimen dates are in conflict. Regimens cannot overlap. Please correct the date(s).").show();
+                                isFormValid = false;
+                            }
+                        }
+                    }
+
+                    //validate if Treatment Date Started is earlier than Treatment Date Stopped
+                    if (parsedTreatmentDateStopped &lt; parsedTreatmentDateStarted) {
+                        treatmentDateStoppedErrorField.html("Treatment Date Stopped cannot be earlier than Treatment Date Started").show();
+                        isFormValid = false;
+                    }
+
+                    //validation of Interruption Date fields
+                    for (let j = 0; j &lt; MAX_TREATMENT_INTERRUPTIONS; j++) {
+                        if ($('#' + i + '-' + j + '-js-interruption').is(':visible')) {
+                            const interruptionDateValue = getValue(i + '-' + j + '-js-interruption-date.value');
+                            const parsedInterruptionDateValue = Date.parse(interruptionDateValue);
+                            const interruptionDateErrorField = getField(i + '-' + j + '-js-interruption-date.error');
+                            interruptionDateErrorField.hide();
+
+                            //validate if Interruption Date is later than Treatment Date Started and earlier than Treatment Date Stopped
+                            if (!interruptionDateValue) {
+                                interruptionDateErrorField.html("Required").show();
+                                isFormValid = false;
+                            } else if (parsedInterruptionDateValue &lt; parsedTreatmentDateStarted || parsedInterruptionDateValue > parsedTreatmentDateStopped) {
+                                interruptionDateErrorField.html("Interruption Date must be between Treatment Date Started and Treatment Date Stopped").show();
+                                isFormValid = false;
+                            }
+
+                            //validate if Restart Date is later or the same as Interruption Date
+                            const restartDateValue = getValue(i + '-' + j + '-js-interruption-restart-date.value');
+                            const parsedRestartDateValue = Date.parse(restartDateValue);
+                            const restartDateErrorField = getField(i + '-' + j + '-js-interruption-restart-date.error');
+                            restartDateErrorField.hide();
+
+                            if (!restartDateValue) {
+                                restartDateErrorField.html("Required").show();
+                                isFormValid = false;
+                            } else if (parsedRestartDateValue &lt; parsedInterruptionDateValue) {
+                                restartDateErrorField.html("Restart Date cannot be earlier than Interruption Date").show();
+                                isFormValid = false;
+                            } else if (parsedRestartDateValue &lt; parsedTreatmentDateStarted || parsedRestartDateValue > parsedTreatmentDateStopped) {
+                                restartDateErrorField.html("Restart Date must be between Treatment Date Started and Treatment Date Stopped").show();
+                                isFormValid = false;
+                            }
+                        }
+                    }
+                }
+            }
+
+            //if form is valid then it will be submitted hence show that saving is in progress
+            if (isFormValid) {
+                $('#save-program-spinner').show();
+            }
+
+            return isFormValid;
+        });
+
+        $(document).ready(function() {
+            const getFormattedDate = (date) => date.getUTCFullYear() + '-' + (date.getUTCMonth() + 1) + '-' + date.getUTCDate();
+
+            const moveFirstEmptyTreatmentToCurrentTreatmentSection = () => {
+                const currentTreatment = $('.js-treatment:not(:visible)').first();
+                const currentTreatmentId = parseInt(currentTreatment.attr('id'));
+                $('#' + currentTreatmentId + '-js-treatment').removeClass(EXPANDABLE_SECTION_CLASS);
+                $('#' + currentTreatmentId + '-js-treatment-expandable-data').show();
+                $('#' + currentTreatmentId + '-js-historical-treatment-buttons').hide();
+                $('#' + currentTreatmentId + '-js-treatment-date-stopped-mandatory-asterisk').hide();
+                currentTreatment.show().css('display', 'flex');
+                $('#js-current-treatment').append(currentTreatment.detach());
+            }
+
+            const loadTreatments = () => {
+                moveFirstEmptyTreatmentToCurrentTreatmentSection();
+                const currentTreatmentId = getCurrentTreatmentId();
+
+                const regimensInfo = $('#js-regimens-info').text().trim();
+                const splitRegimens = regimensInfo?.split('|')?.filter(String);
+                const regimenErrorField = $(this).closest('span').find('.error');
+
+                if (window.treatments &amp;&amp; window.treatments.length) {
+                    const sortedTreatments = window.treatments.slice().sort((treatmentA, treatmentB) => treatmentB.startDate - treatmentA.startDate);
+                    let firstEmptyTreatmentId = 1;
+
+                    sortedTreatments.forEach((treatment) => {
+                        let firstEmptyTreatment = $('#' + firstEmptyTreatmentId + '-js-treatment');
+
+                        //current treatment
+                        if (!treatment.stopDate || treatment.stopDate > Date.now()) {
+                            firstEmptyTreatmentId = currentTreatmentId;
+                            $('#js-stop-current-treatment').show();
+                            showCurrentTreatment();
+                        } else {
+                            hideEmptyHistoricalTreatmentsMessage();
+                            firstEmptyTreatment.show();
+                        }
+
+                        //fill in treatment data
+                        $('#' + firstEmptyTreatmentId + '-js-regimen-name > select').val(treatment.regimenName);
+                        setValue(firstEmptyTreatmentId + '-js-treatment-reason.value', treatment.reason);
+                        const treatmentDateStarted = new Date(treatment.startDate);
+                        setValue(firstEmptyTreatmentId + '-js-treatment-date-started.value', getFormattedDate(new Date(treatment.startDate)));
+                        
+                        if (!!treatment.stopDate) {
+                            const treatmentDateStopped = new Date(treatment.stopDate);
+                            setValue(firstEmptyTreatmentId + '-js-treatment-date-stopped.value', treatmentDateStopped.getUTCFullYear() + '-' + (treatmentDateStopped.getUTCMonth() + 1) + '-' + treatmentDateStopped.getUTCDate());
+                        }
+
+                        //fill in treatment details table
+                        const selectedRegimenValue = $('#' + firstEmptyTreatmentId + '-js-regimen-name > select').val();
+                        for (let i = 0; i &lt; splitRegimens.length; i++) {
+                            const splitRegimenDetails = splitRegimens[i].split(':');
+
+                            if (splitRegimenDetails[0] === selectedRegimenValue) {
+                                const splitRegimenDrugDetails = splitRegimenDetails[1]?.split(';')?.filter(String);
+
+                                for (let j = 0; j &lt; splitRegimenDrugDetails.length; j++) {
+                                    const splitRegimenDrugDetailsObject = splitRegimenDrugDetails[j];
+
+                                    if (splitRegimenDrugDetailsObject.length) {
+                                        const drugFields = splitRegimenDrugDetailsObject.split('_');
+                                        $('#' + firstEmptyTreatmentId + '-js-treatment-details-table-body').append('<tr><td>' + drugFields[0] + '</td><td>' + drugFields[1] + '</td><td>' + drugFields[2] + '</td><td>' + drugFields[3] + '</td></tr>');
+                                    }
+                                }
+
+                                break;
+                            }
+                        }
+                        $('#' + firstEmptyTreatmentId + '-js-treatment-details-table').show();
+
+                        //fill in treatment interruptions
+                        if (treatment.interruptions.length) {
+                            $('#' + firstEmptyTreatmentId + '-js-add-first-interruption').hide();
+
+                            treatment.interruptions.sort((interruptionA, interruptionB) => interruptionA.startDate - interruptionB.startDate).forEach((interruption, interruptionIdx) => {
+                                const interruptionStartDate = new Date(interruption.startDate);
+                                setValue(firstEmptyTreatmentId + '-' + interruptionIdx + '-js-interruption-date.value', interruptionStartDate.getUTCFullYear() + '-' + (interruptionStartDate.getUTCMonth() + 1) + '-' + interruptionStartDate.getUTCDate());
+                                setValue(firstEmptyTreatmentId + '-' + interruptionIdx + '-js-interruption-reason.value', interruption.reason);
+                                const interruptionRestartDate = new Date(interruption.restartDate);
+                                setValue(firstEmptyTreatmentId + '-' + interruptionIdx + '-js-interruption-restart-date.value', interruptionRestartDate.getUTCFullYear() + '-' + (interruptionRestartDate.getUTCMonth() + 1) + '-' + interruptionRestartDate.getUTCDate());
+
+                                if (interruptionIdx > 0) {
+                                    $('button#' + firstEmptyTreatmentId + '-' + (interruptionIdx - 1) + '-js-delete-interruption').hide();
+                                    $('button#' + firstEmptyTreatmentId + '-' + (interruptionIdx - 1) + '-js-add-interruption').hide();
+                                }
+
+                                $('#' + firstEmptyTreatmentId + '-' + interruptionIdx + '-js-interruption').show();
+                            });
+                        }
+
+                        firstEmptyTreatmentId = firstEmptyTreatmentId + 1;
+                    });
+                }
+            }
+
+            const setMandatoryFieldOnChangeListener = (field) => {
+                $(field).change(function() {
+                    const fieldValue = $(this).val();
+                    const errorField = $(this).closest('span').find('.error');
+
+                    if (!fieldValue) {
+                        errorField.html("Required").show();
+                    } else {
+                        errorField.hide();
+                    }
+                });
+            }
+
+            setTreatmentDateStoppedOnChangeListener = () => {
+                $("span[id$='-js-treatment-date-stopped'] > input").change(function() {
+                    const fieldValue = $(this).val();
+                    const errorField = $(this).closest('span').find('.error');
+                    const treatmentId = parseInt($(this).closest('span').attr('id'));
+
+                    if (!fieldValue &amp;&amp; $('#' + treatmentId + '-js-treatment-date-stopped-mandatory-asterisk:visible').length) {
+                        errorField.html("Required").show();
+                    } else {
+                        errorField.hide();
+                    }
+                });
+            }
+            
+            const setRegimenNameOnChangeListener = () => {
+                for (let i = 0; i &lt; MAX_TREATMENTS; i++) {
+                    $('#' + i + '-js-regimen-name > select').change(function() {
+                        const selectedRegimenValue = $(this).val();
+                        const regimensInfo = $('#js-regimens-info').text().trim();
+                        const splitRegimens = regimensInfo?.split('|')?.filter(String);
+                        const regimenErrorField = $(this).closest('span').find('.error');
+                        $('#' + i + '-js-treatment-details-table-body').empty();
+                        
+                        if (selectedRegimenValue) {
+                            for (let j = 0; j &lt; splitRegimens.length; j++) {
+                                const splitRegimenDetails = splitRegimens[j].split(':');
+
+                                if (splitRegimenDetails[0] === selectedRegimenValue) {
+                                    const splitRegimenDrugDetails = splitRegimenDetails[1]?.split(';')?.filter(String);
+
+                                    for (let k = 0; k &lt; splitRegimenDrugDetails.length; k++) {
+                                        const splitRegimenDrugDetailsObject = splitRegimenDrugDetails[k];
+
+                                        if (splitRegimenDrugDetailsObject.length) {
+                                            const drugFields = splitRegimenDrugDetailsObject.split('_');
+                                            $('#' + i + '-js-treatment-details-table-body').append('<tr><td>' + drugFields[0] + '</td><td>' + drugFields[1] + '</td><td>' + drugFields[2] + '</td><td>' + drugFields[3] + '</td></tr>');
+                                        }
+                                    }
+
+                                    break;
+                                }
+                            }
+                            $('#' + i + '-js-treatment-details-table').show();
+                            regimenErrorField.hide();
+                        } else {
+                            $('#' + i + '-js-treatment-details-table').hide();
+                            regimenErrorField.html("Required").show();
+                        }
+                    });
+                }
+            }
+
+            const showCurrentTreatment = () => {
+                setValue(getCurrentTreatmentId() + '-js-is-current-treatment.value', IS_CURRENT_REGIMEN);
+                $('#js-empty-current-treatment').hide();
+                $('#js-current-treatment-buttons').show();
+                $('#js-current-treatment').show();
+            }
+
+            const hideCurrentTreatment = () => {
+                $('#js-empty-current-treatment').show();
+                $('#js-current-treatment-buttons').hide();
+                $('#js-current-treatment .js-treatment-details-table').hide();
+                $('#js-current-treatment').hide();
+            }
+
+            const setAddCurrentTreatmentButtonOnClickListener = () => {
+                $('#js-add-current-treatment').click(() => {
+                    showCurrentTreatment();
+                });
+            }
+
+            const setDeleteCurrentTreatmentButtonOnClickListener = () => {
+                $('#js-delete-current-treatment').click(() => {
+                    $('#js-delete-treatment-confirmation-modal').dialog({
+                        resizable: false,
+                        draggable: false,
+                        width: 500,
+                        modal: true,
+                        title: "Delete Treatment?",
+                        buttons: {
+                            cancel: function() {
+                                $(this).dialog('close');
+                            },
+                            confirm: function() {
+                                hideCurrentTreatment();
+                                setValue(getCurrentTreatmentId() + '-js-is-current-treatment.value', IS_NOT_CURRENT_REGIMEN);
+
+                                //clear treatment data fields
+                                $('#js-current-treatment .js-treatment-data input:not(:button)').val([]);
+                                $('#js-current-treatment .js-treatment-data select').val(null);
+
+                                //clear treatment interruptions fields
+                                $('#js-current-treatment .js-interruption').hide();
+                                $('#js-current-treatment .js-interruption input:not(:button)').val([]);
+                                $('#js-current-treatment button.js-add-interruption').show();
+                                $('#js-current-treatment button.js-delete-interruption').show();
+
+                                $(this).dialog('close');
+                            }
+                        }
+                    });
+                });
+            }
+
+            const setStopCurrentTreatmentButtonOnClickListener = () => {
+                $('#js-stop-current-treatment').click(() => {
+                    const currentTreatmentId = getCurrentTreatmentId();
+                    const currentTreatment = $('#' + currentTreatmentId + '-js-treatment');
+                    setValue(currentTreatmentId + '-js-treatment-date-stopped.value', getFormattedDate(new Date()));
+                    setValue(currentTreatmentId + '-js-is-current-treatment.value', IS_NOT_CURRENT_REGIMEN);
+                    $('#' + currentTreatmentId + '-js-treatment').addClass(EXPANDABLE_SECTION_CLASS);
+                    $('#' + currentTreatmentId + '-js-treatment-expandable-data').hide();
+                    $('#' + currentTreatmentId + '-js-historical-treatment-buttons').show();
+                    $('#' + currentTreatmentId + '-js-treatment-date-stopped-mandatory-asterisk').show();
+                    $('#js-historical-treatments').prepend(currentTreatment.detach());
+                    moveFirstEmptyTreatmentToCurrentTreatmentSection();
+                    hideCurrentTreatment();
+                    hideEmptyHistoricalTreatmentsMessage();
+                    $('#js-stop-current-treatment').hide();
+                });
+            }
+
+            const setInterruptionButtonsOnClickListener = () => {
+                for (let i = 0; i &lt; MAX_TREATMENTS; i++) {
+                    $('button#' + i + '-js-add-first-interruption').click(function() {
+                        $('#' + i + '-0-js-interruption').show();
+                        $('button#' + i + '-js-add-first-interruption').hide();
+                    });
+                    for (let j = 0; j &lt; MAX_TREATMENT_INTERRUPTIONS; j++) {
+                        //add interruption button
+                        $('button#' + i + '-' + j + '-js-add-interruption').click(function() {
+                            const interruptionToAddId = j + 1;
+
+                            //show next interruption
+                            $('#' + i + '-' + interruptionToAddId + '-js-interruption').show();
+
+                            //hide '+' and '-' buttons as it is no longer the last interruption
+                            $('#' + i + '-' + j + '-js-add-interruption').hide();
+                            $('#' + i + '-' + j + '-js-delete-interruption').hide(false);
+                        });
+                        //delete interruption button
+                        $('button#' + i + '-' + j + '-js-delete-interruption').click(function() {
+                            $('#' + i + '-' + j + '-js-interruption').hide();
+                            $('#' + i + '-' + j + '-js-interruption input:not(:button)').val([]);
+
+                            //show '+' and '-' buttons for the previous row
+                            const prevInterruptionId = j - 1;
+                            if (prevInterruptionId &lt; 0) {
+                                $('button#' + i + '-js-add-first-interruption').show();
+                            } else {
+                                $('#' + i + '-' + prevInterruptionId + '-js-add-interruption').show();
+                                $('#' + i + '-' + prevInterruptionId + '-js-delete-interruption').show();
+                            }
+                        });
+                    }
+                }
+            }
+
+            const hideEmptyHistoricalTreatmentsMessage = () => {
+                $('#js-empty-historical-treatment').hide();
+            }
+
+            const setAddHistoricalTreatmentButtonOnClickListener = () => {
+                $('button#js-add-historical-treatment').click(function() {
+                    hideEmptyHistoricalTreatmentsMessage();
+                    $('#js-historical-treatments .js-treatment:not(:visible)').first().show();
+
+                    //hide 'Add Historical Treatment' if all historical treatments are visible 
+                    if (!$('#js-historical-treatments .js-treatment:not(:visible)').length) {
+                        $('button#js-add-historical-treatment').hide();
+                    }
+                });
+            }
+
+            const setHistoricalTreatmentButtonsOnClickListener = () => {
+                for (let i = 0; i &lt; MAX_TREATMENTS; i++) {
+                    $('button#' + i + '-js-delete-treatment').click(function() {
+                        $('#js-delete-treatment-confirmation-modal').dialog({
+                            resizable: false,
+                            draggable: false,
+                            width: 500,
+                            modal: true,
+                            title: "Delete Treatment?",
+                            buttons: {
+                                cancel: function() {
+                                    $(this).dialog('close');
+                                },
+                                confirm: function() {
+                                    $('#' + i + '-js-treatment-expandable-data').hide();
+                                    $('#' + i + '-js-expand-treatment-expandable-data').show();
+                                    $('#' + i + '-js-collapse-treatment-expandable-data').hide();
+                                    $('#' + i + '-js-treatment').hide();
+
+                                    //clear treatment data fields
+                                    $('#' + i + '-js-treatment .js-treatment-data input:not(:button)').val([]);
+                                    $('#' + i + '-js-treatment .js-treatment-data select').val([]);
+
+                                    //clear treatment interruptions fields
+                                    $('#' + i + '-js-treatment .js-interruption').hide();
+                                    $('#' + i + '-js-treatment .js-interruption input:not(:button)').val([]);
+                                    $('#' + i + '-js-treatment button.js-add-interruption').show();
+                                    $('#' + i + '-js-treatment button.js-delete-interruption').show();
+
+                                    //show empty historical treatments section if there are no historical treatments are visible
+                                    if (!$('#js-historical-treatments .js-treatment:visible').length) {
+                                        $('#js-empty-historical-treatment').show();
+                                    }
+
+                                    $(this).dialog('close');
+                                }
+                            }
+                        })
+                    });
+                    $('button#' + i + '-js-toggle-historical-treatment').click(function() {
+                        $('#' + i + '-js-treatment-expandable-data').toggle();
+                        $('#' + i + '-js-expand-treatment-expandable-data').toggle();
+                        $('#' + i + '-js-collapse-treatment-expandable-data').toggle();
+                    });
+                }
+            }
+
+            const setExpandAllHistoricalTreatmentsButtonOnClickListener = () => {
+                $('button#js-expand-all-historical-treatments').click(function() {
+                    $('#js-historical-treatments .js-treatment:visible .js-treatment-expandable-data').show();
+                    $('#js-historical-treatments .js-treatment:visible .js-expand-treatment-expandable-data').hide();
+                    $('#js-historical-treatments .js-treatment:visible .js-collapse-treatment-expandable-data').show();
+                })
+            }
+
+            const setReturnButtonOnClickListener = () => {
+                $('button#return').click(() => {
+                    const queryParams = new URLSearchParams(window.location.search);
+                    if (queryParams.has('patientId')) {
+                        window.location.replace("/openmrs/coreapps/clinicianfacing/patient.page?patientId=" + queryParams.get('patientId'));
+                    }
+                });
+            }
+
+            const setSaveButtonOnClickListener = () => {
+                $('button#save').click(() => {
+                    $('#js-save-program-confirmation-modal').dialog({
+                        resizable: false,
+                        draggable: false,
+                        width: 500,
+                        modal: true,
+                        title: "Save Treatment program?",
+                        buttons: {
+                            cancel: function() {
+                                $(this).dialog('close');
+                            },
+                            confirm: function() {
+                                $('#submit-form > input').click();
+                                $(this).dialog('close');
+                            }
+                        }
+                    });
+                });
+            }
+
+            const showFormContent = () => {
+                $('#form-content-spinner').hide();
+                $('#form-content').show();
+            }
+        
+            //executions
+            setSaveButtonOnClickListener();
+            setReturnButtonOnClickListener();
+            loadTreatments();
+            setAddCurrentTreatmentButtonOnClickListener();
+            setDeleteCurrentTreatmentButtonOnClickListener();
+            setStopCurrentTreatmentButtonOnClickListener();
+            setInterruptionButtonsOnClickListener();
+            setRegimenNameOnChangeListener();
+            setMandatoryFieldOnChangeListener("span[id$='-js-treatment-reason'] > select");
+            setMandatoryFieldOnChangeListener("span[id$='-js-treatment-date-started'] > input");
+            setTreatmentDateStoppedOnChangeListener();
+            setMandatoryFieldOnChangeListener("span[id$='-js-interruption-date'] > input");
+            setMandatoryFieldOnChangeListener("span[id$='-js-interruption-restart-date'] > input");
+            setAddHistoricalTreatmentButtonOnClickListener();
+            setHistoricalTreatmentButtonsOnClickListener();
+            setExpandAllHistoricalTreatmentsButtonOnClickListener();
+            showFormContent();
+        });
+    </script>
+
+    <h2 id="title">
+        <uimessage code="cfl.programForm.title"/>
+    </h2>
+    <!-- Spinner -->
+    <i id="form-content-spinner" class="icon-spinner icon-spin icon-2x"/>
+    <div id="form-content" class="display-none">
+        <!-- Current Treatment Section -->
+        <div class="section">
+            <div class="flex-row justify-content-between mb-3">
+                <h3>
+                    <uimessage code="cfl.programForm.currentTreatment"/>
+                </h3>
+                <div id="js-current-treatment-buttons" class="display-flex align-self-center justify-content-end p-0" style="display: none">
+                    <button type="button" id="js-delete-current-treatment" class="confirm">
+                        <uimessage code="cfl.programForm.button.delete"/>
+                    </button>
+                    <button type="button" id="js-stop-current-treatment" class="transparent" style="display: none">
+                        <uimessage code="cfl.programForm.button.stop"/>
+                    </button>
+                </div>
+            </div>
+            <!-- Empty Current Treatment -->
+            <div id="js-empty-current-treatment" class="flex-column">
+                <h4>
+                    <uimessage code="cfl.programForm.emptyCurrentTreatment"/>
+                </h4>
+                <button type="button" id="js-add-current-treatment">
+                    <uimessage code="cfl.programForm.button.addCurrentTreatment"/>
+                </button>
+            </div>
+            <!-- Current Treatment -->
+            <div id="js-current-treatment" style="display: none"/>
+        </div>
+        <!-- Historical Treatment Section -->
+        <div class="section">
+            <div class="flex-row justify-content-between mb-3">
+                <h3 class="mb-4">
+                    <uimessage code="cfl.programForm.historicalTreatments"/>
+                </h3>
+                <div class="display-flex align-self-center justify-content-end">
+                    <button type="button" id="js-expand-all-historical-treatments" class="transparent">
+                        <uimessage code="cfl.programForm.button.expandAll"/>
+                    </button>
+                </div>
+            </div>
+            <!-- Empty Historical Treatment -->
+            <div id="js-empty-historical-treatment" class="flex-column">
+                <h4>
+                    <uimessage code="cfl.programForm.emptyHistoricalTreatments"/>
+                </h4>
+            </div>
+            <!-- Historical Treatments -->
+            <div id="js-historical-treatments">
+                <repeat>
+                    <template>
+                        <div id="{n}-js-treatment" class="js-treatment expandable-section display-flex" style="display: none">
+                            <obsgroup groupingConceptId="7e08e42b-744c-4a33-8a59-e0ec735ffd59">
+                                <obs id="{n}-js-is-current-treatment" conceptId="20fb8dc4-b958-4c88-b9a7-96ea36b4b0ef" style="yes_no_dropdown" class="display-none"/>
+                                <div class="flex-1">
+                                    <!-- Regimen Data -->
+                                    <div id="{n}-js-treatment-data" class="js-treatment-data flex-row">
+                                        <div>
+                                            <span>
+                                                <uimessage code="cfl.programForm.regimenName"/>
+                                                <span class="color-red">*</span>
+                                            </span>
+                                            <span id="{n}-js-regimen-name">
+                                                <regimen conceptId="c7e17ce8-d832-4349-a326-b20f5ae7f432" addNew="false" required="true"/>
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span>
+                                                <uimessage code="cfl.programForm.reasonForTreatment"/>
+                                                <span class="color-red">*</span>
+                                            </span>
+                                            <obs id="{n}-js-treatment-reason" conceptId="324f28ab-cfa7-46ac-99f3-c7d928ba5e79" defaultObsDatetime="now"/>
+                                        </div>
+                                        <div>
+                                            <span>
+                                                <uimessage code="cfl.programForm.treatmentDateStarted"/>
+                                                <span class="color-red">*</span>
+                                            </span>
+                                            <obs id="{n}-js-treatment-date-started" conceptId="ddfdf4fa-1d0a-40ca-8930-ad914bd07b23" allowFutureDates="true" allowTime="false" defaultObsDatetime="now" />
+                                        </div>
+                                        <div>
+                                            <span>
+                                                <uimessage code="cfl.programForm.treatmentDateStopped"/>
+                                                <span id="{n}-js-treatment-date-stopped-mandatory-asterisk" class="color-red">*</span>
+                                            </span>
+                                            <obs id="{n}-js-treatment-date-stopped" conceptId="806195ad-9f5c-42f0-ad9f-736a21a1dac1" allowFutureDates="true" allowTime="false" defaultObsDatetime="now" />
+                                        </div>
+                                    </div>
+                                    <div id="{n}-js-treatment-expandable-data" class="js-treatment-expandable-data" style="display: none">
+                                        <!-- Drugs -->
+                                        <table id="{n}-js-treatment-details-table" class="js-treatment-details-table treatment-details-table" style="display: none">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        <uimessage code="cfl.programForm.drugName"/>
+                                                    </th>
+                                                    <th>
+                                                        <uimessage code="cfl.programForm.doseUnit"/>
+                                                    </th>
+                                                    <th>
+                                                        <uimessage code="cfl.programForm.numberOfUnits"/>
+                                                    </th>
+                                                    <th>
+                                                        <uimessage code="cfl.programForm.frequency"/>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="{n}-js-treatment-details-table-body"></tbody>
+                                        </table>
+                                        <!-- Interruptions -->
+                                        <div class="mt-4">
+                                            <h3>
+                                                <uimessage code="cfl.programForm.treatmentInterruptions"/>
+                                            </h3>
+                                            <button type="button" id="{n}-js-add-first-interruption" class="js-add-interruption icon-button mb-2">
+                                                <i class="icon-plus"/>
+                                            </button>
+                                            <div id="{n}-0-js-interruption" class="js-interruption flex-row" style="display: none">
+                                                <obsgroup groupingConceptId="f2b32e5c-3e18-47af-b84d-8d2994361eb5">
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.date"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-0-js-interruption-date" conceptId="dca99985-a303-4418-a440-d2af44f62c4b" allowFutureDates="false" allowTime="false" />
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.reason"/>
+                                                        </span>
+                                                        <obs id="{n}-0-js-interruption-reason" conceptId="30d09891-6bae-492c-b45b-ebe142837497"/>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.restartDate"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-0-js-interruption-restart-date" conceptId="d9cd2810-d600-47c4-b29c-234c72514b9e" allowFutureDates="false" allowTime="false"/>
+                                                    </div>
+                                                </obsgroup>
+                                                <div class="display-flex align-self-center m-0">
+                                                    <button type="button" id="{n}-0-js-delete-interruption" class="js-delete-interruption icon-button">
+                                                        <i class="icon-minus"/>
+                                                    </button>
+                                                    <button type="button" id="{n}-0-js-add-interruption" class="js-add-interruption icon-button">
+                                                        <i class="icon-plus"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="{n}-1-js-interruption" class="js-interruption flex-row" style="display: none">
+                                                <obsgroup groupingConceptId="f2b32e5c-3e18-47af-b84d-8d2994361eb5">
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.date"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-1-js-interruption-date" conceptId="dca99985-a303-4418-a440-d2af44f62c4b" allowFutureDates="false" allowTime="false" />
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.reason"/>
+                                                        </span>
+                                                        <obs id="{n}-1-js-interruption-reason" conceptId="30d09891-6bae-492c-b45b-ebe142837497"/>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.restartDate"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-1-js-interruption-restart-date" conceptId="d9cd2810-d600-47c4-b29c-234c72514b9e" allowFutureDates="false" allowTime="false"/>
+                                                    </div>
+                                                </obsgroup>
+                                                <div class="display-flex align-self-center m-0">
+                                                    <button type="button" id="{n}-1-js-delete-interruption" class="js-delete-interruption icon-button">
+                                                        <i class="icon-minus"/>
+                                                    </button>
+                                                    <button type="button" id="{n}-1-js-add-interruption" class="js-add-interruption icon-button">
+                                                        <i class="icon-plus"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="{n}-2-js-interruption" class="js-interruption flex-row" style="display: none">
+                                                <obsgroup groupingConceptId="f2b32e5c-3e18-47af-b84d-8d2994361eb5">
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.date"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-2-js-interruption-date" conceptId="dca99985-a303-4418-a440-d2af44f62c4b" allowFutureDates="false" allowTime="false" />
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.reason"/>
+                                                        </span>
+                                                        <obs id="{n}-2-js-interruption-reason" conceptId="30d09891-6bae-492c-b45b-ebe142837497"/>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.restartDate"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-2-js-interruption-restart-date" conceptId="d9cd2810-d600-47c4-b29c-234c72514b9e" allowFutureDates="false" allowTime="false"/>
+                                                    </div>
+                                                </obsgroup>
+                                                <div class="display-flex align-self-center m-0">
+                                                    <button type="button" id="{n}-2-js-delete-interruption" class="js-delete-interruption icon-button">
+                                                        <i class="icon-minus"/>
+                                                    </button>
+                                                    <button type="button" id="{n}-2-js-add-interruption" class="js-add-interruption icon-button">
+                                                        <i class="icon-plus"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="{n}-3-js-interruption" class="js-interruption flex-row" style="display: none">
+                                                <obsgroup groupingConceptId="f2b32e5c-3e18-47af-b84d-8d2994361eb5">
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.date"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-3-js-interruption-date" conceptId="dca99985-a303-4418-a440-d2af44f62c4b" allowFutureDates="false" allowTime="false" />
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.reason"/>
+                                                        </span>
+                                                        <obs id="{n}-3-js-interruption-reason" conceptId="30d09891-6bae-492c-b45b-ebe142837497"/>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.restartDate"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-3-js-interruption-restart-date" conceptId="d9cd2810-d600-47c4-b29c-234c72514b9e" allowFutureDates="false" allowTime="false"/>
+                                                    </div>
+                                                </obsgroup>
+                                                <div class="display-flex align-self-center m-0">
+                                                    <button type="button" id="{n}-3-js-delete-interruption" class="js-delete-interruption icon-button">
+                                                        <i class="icon-minus"/>
+                                                    </button>
+                                                    <button type="button" id="{n}-3-js-add-interruption" class="js-add-interruption icon-button">
+                                                        <i class="icon-plus"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="{n}-4-js-interruption" class="js-interruption flex-row" style="display: none">
+                                                <obsgroup groupingConceptId="f2b32e5c-3e18-47af-b84d-8d2994361eb5">
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.date"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-4-js-interruption-date" conceptId="dca99985-a303-4418-a440-d2af44f62c4b" allowFutureDates="false" allowTime="false" />
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.reason"/>
+                                                        </span>
+                                                        <obs id="{n}-4-js-interruption-reason" conceptId="30d09891-6bae-492c-b45b-ebe142837497"/>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.restartDate"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-4-js-interruption-restart-date" conceptId="d9cd2810-d600-47c4-b29c-234c72514b9e" allowFutureDates="false" allowTime="false"/>
+                                                    </div>
+                                                </obsgroup>
+                                                <div class="display-flex align-self-center m-0">
+                                                    <button type="button" id="{n}-4-js-delete-interruption" class="js-delete-interruption icon-button">
+                                                        <i class="icon-minus"/>
+                                                    </button>
+                                                    <button type="button" id="{n}-4-js-add-interruption" class="js-add-interruption icon-button">
+                                                        <i class="icon-plus"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="{n}-5-js-interruption" class="js-interruption flex-row" style="display: none">
+                                                <obsgroup groupingConceptId="f2b32e5c-3e18-47af-b84d-8d2994361eb5">
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.date"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-5-js-interruption-date" conceptId="dca99985-a303-4418-a440-d2af44f62c4b" allowFutureDates="false" allowTime="false" />
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.reason"/>
+                                                        </span>
+                                                        <obs id="{n}-5-js-interruption-reason" conceptId="30d09891-6bae-492c-b45b-ebe142837497"/>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.restartDate"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-5-js-interruption-restart-date" conceptId="d9cd2810-d600-47c4-b29c-234c72514b9e" allowFutureDates="false" allowTime="false"/>
+                                                    </div>
+                                                </obsgroup>
+                                                <div class="display-flex align-self-center m-0">
+                                                    <button type="button" id="{n}-5-js-delete-interruption" class="js-delete-interruption icon-button">
+                                                        <i class="icon-minus"/>
+                                                    </button>
+                                                    <button type="button" id="{n}-5-js-add-interruption" class="js-add-interruption icon-button">
+                                                        <i class="icon-plus"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="{n}-6-js-interruption" class="js-interruption flex-row" style="display: none">
+                                                <obsgroup groupingConceptId="f2b32e5c-3e18-47af-b84d-8d2994361eb5">
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.date"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-6-js-interruption-date" conceptId="dca99985-a303-4418-a440-d2af44f62c4b" allowFutureDates="false" allowTime="false" />
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.reason"/>
+                                                        </span>
+                                                        <obs id="{n}-6-js-interruption-reason" conceptId="30d09891-6bae-492c-b45b-ebe142837497"/>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.restartDate"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-6-js-interruption-restart-date" conceptId="d9cd2810-d600-47c4-b29c-234c72514b9e" allowFutureDates="false" allowTime="false"/>
+                                                    </div>
+                                                </obsgroup>
+                                                <div class="display-flex align-self-center m-0">
+                                                    <button type="button" id="{n}-6-js-delete-interruption" class="js-delete-interruption icon-button">
+                                                        <i class="icon-minus"/>
+                                                    </button>
+                                                    <button type="button" id="{n}-6-js-add-interruption" class="js-add-interruption icon-button">
+                                                        <i class="icon-plus"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="{n}-7-js-interruption" class="js-interruption flex-row" style="display: none">
+                                                <obsgroup groupingConceptId="f2b32e5c-3e18-47af-b84d-8d2994361eb5">
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.date"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-7-js-interruption-date" conceptId="dca99985-a303-4418-a440-d2af44f62c4b" allowFutureDates="false" allowTime="false" />
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.reason"/>
+                                                        </span>
+                                                        <obs id="{n}-7-js-interruption-reason" conceptId="30d09891-6bae-492c-b45b-ebe142837497"/>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.restartDate"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-7-js-interruption-restart-date" conceptId="d9cd2810-d600-47c4-b29c-234c72514b9e" allowFutureDates="false" allowTime="false"/>
+                                                    </div>
+                                                </obsgroup>
+                                                <div class="display-flex align-self-center m-0">
+                                                    <button type="button" id="{n}-7-js-delete-interruption" class="js-delete-interruption icon-button">
+                                                        <i class="icon-minus"/>
+                                                    </button>
+                                                    <button type="button" id="{n}-7-js-add-interruption" class="js-add-interruption icon-button">
+                                                        <i class="icon-plus"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="{n}-8-js-interruption" class="js-interruption flex-row" style="display: none">
+                                                <obsgroup groupingConceptId="f2b32e5c-3e18-47af-b84d-8d2994361eb5">
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.date"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-8-js-interruption-date" conceptId="dca99985-a303-4418-a440-d2af44f62c4b" allowFutureDates="false" allowTime="false" />
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.reason"/>
+                                                        </span>
+                                                        <obs id="{n}-8-js-interruption-reason" conceptId="30d09891-6bae-492c-b45b-ebe142837497"/>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.restartDate"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-8-js-interruption-restart-date" conceptId="d9cd2810-d600-47c4-b29c-234c72514b9e" allowFutureDates="false" allowTime="false"/>
+                                                    </div>
+                                                </obsgroup>
+                                                <div class="display-flex align-self-center m-0">
+                                                    <button type="button" id="{n}-8-js-delete-interruption" class="js-delete-interruption icon-button">
+                                                        <i class="icon-minus"/>
+                                                    </button>
+                                                    <button type="button" id="{n}-8-js-add-interruption" class="js-add-interruption icon-button">
+                                                        <i class="icon-plus"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div id="{n}-9-js-interruption" class="js-interruption flex-row" style="display: none">
+                                                <obsgroup groupingConceptId="f2b32e5c-3e18-47af-b84d-8d2994361eb5">
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.date"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-9-js-interruption-date" conceptId="dca99985-a303-4418-a440-d2af44f62c4b" allowFutureDates="false" allowTime="false" />
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.reason"/>
+                                                        </span>
+                                                        <obs id="{n}-9-js-interruption-reason" conceptId="30d09891-6bae-492c-b45b-ebe142837497"/>
+                                                    </div>
+                                                    <div>
+                                                        <span>
+                                                            <uimessage code="cfl.programForm.treatmentInterruption.restartDate"/>
+                                                            <span class="color-red">*</span>
+                                                        </span>
+                                                        <obs id="{n}-9-js-interruption-restart-date" conceptId="d9cd2810-d600-47c4-b29c-234c72514b9e" allowFutureDates="false" allowTime="false"/>
+                                                    </div>
+                                                </obsgroup>
+                                                <div class="display-flex align-self-center m-0">
+                                                    <button type="button" id="{n}-9-js-delete-interruption" class="js-delete-interruption icon-button">
+                                                        <i class="icon-minus"/>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </obsgroup>
+                            <div id="{n}-js-historical-treatment-buttons" class="js-historical-treatment-buttons pt-4">
+                                <div class="display-flex align-self-center m-0">
+                                    <button type="button" id="{n}-js-delete-treatment">
+                                        <uimessage code="cfl.programForm.button.delete"/>
+                                    </button>
+                                    <button type="button" id="{n}-js-toggle-historical-treatment" class="icon-button">
+                                        <i id="{n}-js-collapse-treatment-expandable-data" class="js-collapse-treatment-expandable-data icon-resize-small" style="display: none"/>
+                                        <i id="{n}-js-expand-treatment-expandable-data" class="js-expand-treatment-expandable-data icon-resize-full"/>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    <render n="0"/>
+                    <render n="1"/>
+                    <render n="2"/>
+                    <render n="3"/>
+                    <render n="4"/>
+                    <render n="5"/>
+                    <render n="6"/>
+                    <render n="7"/>
+                    <render n="8"/>
+                    <render n="9"/>
+                </repeat>
+            </div>
+            <div class="flex-row justify-content-end">
+                <button type="button" id="js-add-historical-treatment" class="mt-3">
+                    <uimessage code="cfl.programForm.button.addHistoricalTreatment"/>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <enrollInProgram programId="06c596e7-53dd-44c1-9609-f1406fd9e76d"/>
+
+    <ifMode mode="VIEW" include="false">
+        <!-- Save and Return Buttons -->
+        <div id="buttons">
+            <button id="save" type="button" class="confirm right" style="display: flex">
+                <uimessage code="cfl.programForm.button.save"/>
+                <div id="save-program-spinner" class="ml-2 display-none">
+                    <i class="icon-spinner icon-spin icon-2x"/>
+                </div>
+            </button>
+            <button id="return" type="button" class="cancel">
+                <uimessage code="cfl.programForm.button.return"/>
+            </button>
+        </div>
+        <postSubmissionAction class="org.openmrs.module.cflcore.api.htmlformentry.action.RemoveEncounterAction"/>
+        <redirectOnSave url="/htmlformentryui/htmlform/enterHtmlFormWithStandardUi.page?patientId={{patient.id}}&amp;formUuid=ad796f8c-b966-11eb-9ad8-0242ac120002&amp;returnUrl=/openmrs/coreapps/clinicianfacing/patient.page?patientId={{patient.id}}"/>
+    </ifMode>
+</htmlform>

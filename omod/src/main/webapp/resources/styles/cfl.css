@@ -1,0 +1,879 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public License,
+ * v. 2.0. If a copy of the MPL was not distributed with this file, You can
+ * obtain one at http://mozilla.org/MPL/2.0/. OpenMRS is also distributed under
+ * the terms of the Healthcare Disclaimer located at http://openmrs.org/license.
+ * <p>
+ * Copyright (C) OpenMRS Inc. OpenMRS is a registered trademark and the OpenMRS
+ * graphic logo is a trademark of OpenMRS Inc.
+ */
+
+/** Fonts **/
+@font-face {
+    font-family: 'CircularStd';
+    font-style: normal;
+    font-weight: normal;
+    src: url('../fonts/CircularStd-Medium.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'CircularStd';
+    font-style: normal;
+    font-weight: bold;
+    src: url('../fonts/CircularStd-Bold.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'CircularStd-Book';
+    font-style: normal;
+    font-weight: normal;
+    src: url('../fonts/CircularStd-Book.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'CircularStd-Book';
+    font-style: italic;
+    font-weight: normal;
+    src: url('../fonts/CircularStd-BookItalic.otf') format('opentype');
+}
+
+body {
+    background-color: #fafafa;
+    max-width: none;
+    width: auto;
+    margin-top: 0;
+    font-family: 'CircularStd', serif;
+}
+
+header {
+    background-color: #00455C;
+    color: white;
+    border-radius: 0;
+    padding: 0 1em 0 1em;
+    min-height: auto;
+    width: 100%;
+    display: flex;
+}
+
+header .navbar {
+    height: auto;
+}
+
+header nav.navbar {
+    padding: 0 !important;
+    flex: 1;
+}
+
+header .user-options {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    margin-left: auto;
+    align-self: center;
+}
+
+header .user-options i {
+    box-sizing: content-box !important;
+}
+
+header .user-options li {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+  
+header #user-account-menu li a {
+    padding: 0 !important;
+}
+
+header .user-options li.change-location {
+    border: none;
+}
+
+header .user-options li.change-location:hover, header .user-options li.change-location .focus {
+    background: #10708E;
+}
+
+header #session-location {
+    border: 2px solid #10708E;
+    top: 40px !important;
+}
+
+header a:active, a:hover {
+    text-decoration: none;
+}
+
+.navbar-nav {
+    color: #FFF !important;
+}
+
+#app header {
+    background-color: #00455C;
+    padding-bottom: 8px;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 8px;
+}
+
+header .logo {
+    max-height: initial;
+    margin: 5px 0;
+}
+
+header .logo a {
+    content: url('../images/logo/connect_for_life.png');
+    height: 30px !important;
+    width: auto !important;
+}
+
+#app header .user-options {
+    margin-top: 10px;
+    margin-right: 0;
+}
+
+#app header .location-container {
+    border: 2px solid #10708E;
+    padding: 0 20px;
+    font-size: 0.8em;
+}
+
+#app header .location-container li {
+    width: 30%;
+    margin: 0 10px !important;
+}
+
+header #user-account-menu li a:hover, .location-container li.selected,
+    .location-container li:hover, #session-location li:hover, #session-location li.selected {
+    background-color: #10708E;
+    color: #FFF;
+}
+
+header #user-account-menu {
+    position: absolute;
+    background: #FFF;
+    color: #10708E;
+    border: 2px solid #10708E;
+    border-radius: 0;
+    padding: 5px 10px 5px 10px;
+}
+
+header #user-account-menu li {
+    margin: 10px;
+    padding: 0;
+}
+
+header #user-account-menu li a {
+    padding: 5px;
+    background: #FFF;
+    color: #10708E;
+}
+
+header .location-container li, #session-location li  {
+    color: #10708E;
+}
+
+label {
+    font-size: 16px !important;
+    color: #2B3640;
+}
+
+#patient-search-form input {
+    margin: 2px;
+    box-shadow: none;
+}
+
+.select__control {
+    border: 1px solid #AEC2D5;
+    border-radius: 0;
+    margin-top: 2px;
+}
+
+.select__control--is-focused, .select__control:hover {
+    border: 2px solid #10708E !important;
+    box-shadow: none;
+}
+
+.select__control--is-focused input:focus {
+    outline: 0px !important;
+}
+
+#app .select-wrap select {
+    min-height: 34px;
+    min-width: 150px;
+}
+
+input.ant-time-picker-panel-input:focus {
+    outline: 0px !important;
+}
+
+.ant-time-picker-input:hover {
+    border: 2px solid #10708E !important;
+    outline: 0px !important;
+}
+
+#allergy-comment, #sputum-date, #diagnosis-search, .vital-parameter-container, .section #note,
+    .overview-visits .search-bar input {
+    margin-left: 3px;
+}
+
+#app .accordion .content .form {
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+#app .ReactTable .-pagination .-pageJump, #app .ReactTable .-pagination .-pageSizeOptions {
+    border: none;
+}
+
+#app .ReactTable .-pagination .-pageJump input, #app .ReactTable .-pagination select {
+    border: 1px solid #AEC2D5 !important;
+    border-radius: 0;
+}
+
+input[type=text], input[type=number], select, textarea {
+    outline: 1px solid #AEC2D5;
+    border-radius: 0;
+    border: 0px !important;
+}
+
+#demographics select {
+    padding: 4px;
+}
+
+input:focus, textarea:focus,
+select:focus {
+    outline: 2px solid #10708E !important;
+    box-shadow: none;
+    border: none !important;
+}
+
+input[type=text]:disabled, input[type=number]:disabled, input[type=checkbox]:disabled,
+select:disabled, .form-group div.disabled input {
+    outline: 1px solid #AEC2D5;
+    background-color: #E3EBF2;
+    border: 0px;
+}
+
+#default-locale-field {
+    margin-left: 2px;
+}
+
+.cfl-dialog-header {
+    background: #00455C;
+}
+
+.dialog .dialog-header, .modal-dialog .modal-header {
+    background: #00455C;
+}
+
+.patient-header {
+    margin: -10px -15px 10px -15px;
+}
+
+.patient-header h1 {
+    font-weight: normal !important;
+}
+
+.patient-header-container {
+    margin: 5px 0px 10px 0px;
+}
+
+.patient-header-container .patient-header {
+    margin: 0;
+}
+
+
+.patient-header, .patient-header-container {
+    background: #E7F6FB;
+    border-bottom: 2px solid #C6ECF9;
+}
+
+.patient-header h1 {
+    color: #2B3640;
+}
+
+.patient-header .identifiers em,
+    .patient-header-container .patient-header .identifiers em {
+    color: #2B3640;
+    text-align: right;
+}
+
+.patient-header .identifiers span,
+    .patient-header-container .patient-header .identifiers .identifiers-number span {
+    background: #2B3640;
+}
+
+#body-wrapper #content #apps a.button {
+    background: -webkit-linear-gradient(bottom, #E7F6FB, white);
+    color: #00455C;
+    border-color: #C6ECF9;
+}
+
+#body-wrapper #content #apps a.button:hover {
+    background: -webkit-linear-gradient(#E7F6FB, #E7F6FB);
+    color: #00455C;
+    border-color: #C6ECF9;
+}
+
+#body-wrapper #content #tasks a.button {
+    background: -webkit-linear-gradient(bottom, #E7F6FB, white);
+    color: #00455C;
+    border-color: #C6ECF9;
+}
+
+#body-wrapper #content #tasks a.button:hover {
+    background: -webkit-linear-gradient(#E7F6FB, #E7F6FB);
+    color: #00455C;
+    border-color: #C6ECF9;
+}
+
+#content h4 {
+    color: #A34A3D;
+    margin-left: 15px;
+    font-weight: bold;
+}
+
+#content .info-body {
+    background-color: #E7F6FB;
+}
+
+.dashboard .info-header {
+    color: #00455C;
+    border-bottom: 6px solid #00455C;
+}
+
+.dashboard .info-header i {
+    color: #00455C;
+}
+
+.dashboard .info-header h3 {
+    color: #00455C;
+    text-transform: uppercase;
+}
+
+.dashboard .action-section ul {
+    background-color: #00455C;
+}
+
+.dashboard .action-section h3:before {
+    font-family: "FontAwesome";
+    content: "\f013";
+    position: absolute;
+    margin-left: -17px;
+}
+
+.dashboard .action-section h3 {
+    margin-left: 15px;
+}
+
+#app .panel-body a.button {
+    background: -webkit-linear-gradient(bottom, #E7F6FB, white);
+    color: #00455C;
+    border-color: #C6ECF9;
+}
+
+#app .panel-body a.button:hover {
+    background: -webkit-linear-gradient(#E7F6FB, #E7F6FB);
+    color: #00455C;
+}
+
+#app .ReactTable .rt-tbody .rt-tr .rt-td .rt-th {
+    border: #E3EBF2;
+}
+
+#app .ReactTable .rt-thead.-header {
+    background-color: #E7F6FB !important;
+    color: #10708E;
+    font-weight: bold;
+}
+
+#app .ReactTable .rt-tr.-odd {
+    background-color: #F7FDFF !important;
+    color: #2B3640;
+}
+
+#app .ReactTable .rt-tr.-even {
+    background-color: white !important;
+    color: #2B3640;
+}
+
+#app .ReactTable .rt-tr:hover {
+    background-color: #E7F6FB !important;
+}
+
+#app .ReactTable .-pagination .-btn[disabled] {
+    background: -webkit-linear-gradient(#E3EBF2, #E3EBF2);
+    border: 1px solid #AEC2D5;
+    color: #AEC2D5;
+    opacity: inherit;
+}
+
+.body-wrapper h1, .body-wrapper h2, #body-wrapper h2 {
+    color: #10708E;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.body-wrapper, #body-wrapper {
+    color: #2B3640;
+    font-size: 16px;
+}
+
+#body-wrapper table td tr th{
+    border: #E3EBF2;
+}
+
+#body-wrapper table thead th {
+    background: none;
+    background-color: #E7F6FB;
+}
+
+#body-wrapper table tbody tr {
+    background-color: #F7FDFF;
+}
+
+#body-wrapper table tbody tr.odd {
+    background-color: #F7FDFF;
+}
+
+#body-wrapper table tbody tr.even {
+    background-color: white;
+}
+
+#body-wrapper table tbody tr:hover {
+    background-color: #E7F6FB !important;
+    color: black !important;
+}
+
+.ui-state-default {
+    background: none;
+    background-color: #E7F6FB;
+    color: #10708E;
+}
+
+#breadcrumbs a i, #breadcrumbs svg {
+    color: #51606E;
+}
+
+#breadcrumbs a i:hover, #breadcrumbs a svg:hover {
+    color:  #2B3640;
+}
+
+#breadcrumbs .icon-chevron-right, #breadcrumbs .breadcrumb-delimiter svg {
+    color: #2B3640 !important;
+}
+
+#breadcrumbs a, #breadcrumbs a:link, #breadcrumbs a:visited {
+    color: #51606E;
+}
+
+#breadcrumbs a:hover, #breadcrumbs a:link:hover, #breadcrumbs a:visited:hover {
+    color: #2B3640;
+}
+
+#breadcrumbs li, #breadcrumbs .breadcrumb-last-item {
+    color: #00455C;
+}
+
+#breadcrumbs .breadcrumb-last-item {
+    font-family: "OpenSansBold";
+}
+
+#breadcrumbs {
+    font-size: 16px;
+}
+
+#app .confirm {
+    background: linear-gradient(180deg, rgba(161, 208, 48, 1) 35%, rgba(136, 175, 40, 1) 100%);
+    font-size: 16px;
+}
+
+#app .confirm:hover {
+    background: linear-gradient(rgba(136, 175, 40, 1), rgba(136, 175, 40, 1));
+    color: white;
+}
+
+#app .cancel {
+    background: linear-gradient(180deg, rgba(255, 102, 102, 1) 28%, rgba(255, 61, 61, 1) 100%);
+    font-size: 16px;
+}
+
+#app .cancel:hover {
+    background: linear-gradient(#d9534f, #d9534f);
+}
+
+#app .body-wrapper .add-btn {
+    background: -webkit-linear-gradient(bottom, #10708E 15%, #00455C 97%);
+    border-color: #00455C;
+    color: white;
+    font-size: 16px;
+    margin-right: 1px;
+}
+
+#app .body-wrapper .add-btn:hover {
+    background: -webkit-linear-gradient(#00455C, #00455C);
+    border-color: #00455C;
+    color: white;
+}
+
+#app .sec-btn {
+    background: -webkit-linear-gradient(top, #ffffff, #e7f6fb);
+    border-color: #C6ECF9;
+    color: #2B3640;
+    font-size: 16px;
+    margin-right: 1px;
+}
+
+#app .sec-btn:hover {
+    background: -webkit-linear-gradient(#E7F6FB, #E7F6FB);
+    border-color: #C6ECF9;
+    color: #2B3640;
+}
+
+#app .panel-body a.button.import-templates {
+    background: -webkit-linear-gradient(top, #ffffff, #e7f6fb);
+    font-size: 16px;
+}
+
+#app .panel-body a.button.import-templates:hover {
+    background: -webkit-linear-gradient(#E7F6FB, #E7F6FB);
+}
+
+#app .btn-danger {
+    background: linear-gradient(180deg, rgba(255, 102, 102, 1) 28%, rgba(255, 61, 61, 1) 100%);
+    font-size: 16px;
+}
+
+#app .btn-danger:hover {
+    background: linear-gradient(#d9534f, #d9534f);
+}
+
+#app .test-btn {
+    background: -webkit-linear-gradient(top, #ffffff, #e7f6fb);
+    color: #2B3640;
+    border: #C6ECF9;
+    font-size: 16px;
+}
+
+#app .test-btn:hover {
+    background: -webkit-linear-gradient(#E7F6FB, #E7F6FB);
+}
+
+#app .body-wrapper .-pagination .-first, .-previous, .-next, .-last {
+    background: -webkit-linear-gradient(top, #ffffff, #e7f6fb);
+    color: #2B3640;
+    font-size: 16px;
+}
+
+#app .body-wrapper .-pagination button {
+    background: none;
+    color: #2B3640;
+    border: 1px solid #C6ECF9;
+}
+
+#app .body-wrapper .-pagination button:hover {
+    background-color: #E7F6FB;
+    color: #2B3640;
+}
+
+.nav-button {
+    background: -webkit-linear-gradient(top, #ffffff, #e7f6fb);
+    border-color: #C6ECF9 !important;
+    color: #2B3640;
+    font-size: 16px;
+    margin-top: 5px;
+    padding: 6px 12px;
+}
+
+.nav-button:hover {
+    background: -webkit-linear-gradient(#E7F6FB, #E7F6FB);
+    color: #2B3640;
+}
+
+.simple-form-ui section {
+    min-width: 750px;
+}
+
+#app .dropdown-container .add-button {
+    background: -webkit-linear-gradient(top, #ffffff, #e7f6fb);
+    color: #2B3640;
+    font-size: 16px;
+}
+
+#app .dropdown-container .add-button:hover {
+    background: -webkit-linear-gradient(#E7F6FB, #E7F6FB);
+    color: #2B3640;
+}
+
+#best-contact-time .button-section .btn-secondary {
+    background: -webkit-linear-gradient(bottom, #10708E 15%, #00455C 97%);
+    border: #00455C;
+    color: white;
+    font-size: 16px;
+}
+
+#best-contact-time .button-section .btn-secondary:hover {
+    background: -webkit-linear-gradient(#00455C, #00455C);
+    border: #00455C;
+    color: white;
+}
+
+ul#formBreadcrumb li.doing .question-legend .icon-ok {
+    font-size: 1em;
+}
+
+ul#formBreadcrumb li.doing {
+    border-left: 5px solid #00455C;
+}
+
+ul#formBreadcrumb li.doing ul li.focused {
+    background-color: #00455C;
+}
+
+#form-entry .nav-pills {
+    border-left: 5px solid #00455C;
+}
+
+#form-entry .nav-pills > li.active > a {
+    background-color: #00455C;
+}
+
+#form-entry .nav-pills > li.active > a:focus {
+    background-color: #00455C;
+}
+
+.simple-form-ui #demographics h3 {
+    color: #2B3640;
+    font-size: 16px;
+}
+
+.body-wrapper h5 {
+    color: #00455C;
+    font-size: 16px;
+}
+
+#app .panel-body .pull-right .sec-btn {
+    margin-right: 7px;
+}
+
+#app .panel-body .pull-right .sec-btn:hover {
+    margin-right: 7px;
+    border-color: #C6ECF9;
+}
+
+#app .panel-body form .sec-btn {
+    margin-right: 1px;
+}
+
+#app .panel-body form .sec-btn:hover {
+    margin-right: 1px;
+    border-color: #C6ECF9;
+}
+
+#body-wrapper #content.container-fluid a.button {
+    background: -webkit-linear-gradient(bottom, #10708E 15%, #00455C 97%);
+    border-color: #00455C;
+    color: white;
+    font-size: 16px;
+}
+
+#body-wrapper #content.container-fluid a.button:hover {
+    background: -webkit-linear-gradient(bottom, #00455C, #00455C);
+    color: white;
+}
+
+#body-wrapper #manage-system-settings button {
+    background: -webkit-linear-gradient(bottom, #10708E 15%, #00455C 97%);
+    border-color: #00455C;
+    color: white;
+    font-size: 16px;
+}
+
+#body-wrapper #manage-system-settings button:hover {
+    background: -webkit-linear-gradient(bottom, #00455C, #00455C);
+    color: white;
+}
+
+#body-wrapper #content #registration-section-form #confirmation #confirmationQuestion #registration-submit {
+    background: linear-gradient(180deg, rgba(161, 208, 48, 1) 35%, rgba(136, 175, 40, 1) 100%);
+    border-color: #88af28;
+}
+
+#body-wrapper #content #registration-section-form #confirmation #confirmationQuestion #registration-submit:hover {
+    background: linear-gradient(rgba(136, 175, 40, 1), rgba(136, 175, 40, 1));
+    color: white;
+}
+
+.admin-settings .panel-body {
+    padding: 0;
+}
+
+#body-wrapper #content.container-fluid #manage-system-settings button.confirm {
+    background: linear-gradient(180deg, rgba(161, 208, 48, 1) 35%, rgba(136, 175, 40, 1) 100%);
+    border-color: #88af28;
+    font-size: 16px;
+}
+
+#body-wrapper #content.container-fluid #manage-system-settings button.confirm:hover {
+    background: linear-gradient(rgba(136, 175, 40, 1), rgba(136, 175, 40, 1));
+    color: white;
+}
+
+#body-wrapper #content.container-fluid #manage-system-settings button.cancel {
+    background: linear-gradient(180deg, rgba(255, 102, 102, 1) 28%, rgba(255, 61, 61, 1) 100%);
+    font-size: 16px;
+    border-color: #ff3d3d;
+}
+
+#body-wrapper #content.container-fluid #manage-system-settings button.cancel:hover {
+    background: linear-gradient(#d9534f, #d9534f);
+}
+
+#body-wrapper #content.container-fluid .dialog-content button.confirm {
+    background: linear-gradient(180deg, rgba(161, 208, 48, 1) 35%, rgba(136, 175, 40, 1) 100%);
+    border-color: #88af28;
+    font-size: 16px;
+}
+
+#body-wrapper #content.container-fluid .dialog-content button.confirm:hover {
+    background: linear-gradient(rgba(136, 175, 40, 1), rgba(136, 175, 40, 1));
+    color: white;
+}
+
+#app .body-wrapper .accordion.border {
+    border: 1px #C6ECF9 solid;
+    border-radius: 0px;
+}
+
+#app .body-wrapper .accordion .content.open {
+    background-color: #F7FDFF;
+    border: 1px #C6ECF9 solid;
+    border-radius: 0px;
+}
+
+#app .body-wrapper .accordion.border .content.close {
+    background-color: #E7F6FB;
+    border-radius: 0px;
+    border: none;
+}
+
+#app .body-wrapper .accordion.border .header {
+    background-color: #F7FDFF;
+    border: 1px #C6ECF9 solid;
+    border-radius: 0px;
+}
+
+#app .body-wrapper .accordion.border .header:focus {
+    outline: 0;
+}
+
+#app .body-wrapper .accordion .content.open button {
+    background: -webkit-linear-gradient(top, #ffffff, #e7f6fb);
+    border-color: #C6ECF9;
+    color: #2B3640;
+    font-size: 16px;
+}
+
+#app .body-wrapper .accordion .content.open button:hover {
+    background: -webkit-linear-gradient(#E7F6FB, #E7F6FB);
+    border-color: #C6ECF9;
+    color: #2B3640;
+}
+
+#app .body-wrapper .accordion .content.open form button.confirm {
+    background: linear-gradient(180deg, rgba(161, 208, 48, 1) 35%, rgba(136, 175, 40, 1) 100%);
+    border-color: #88af28;
+    font-size: 16px;
+    color: white;
+}
+
+#app .body-wrapper .accordion .content.open form button.confirm:hover {
+    background: linear-gradient(rgba(136, 175, 40, 1), rgba(136, 175, 40, 1));
+    color: white;
+}
+
+#body-wrapper #content.container-fluid button.confirm {
+    background: -webkit-linear-gradient(bottom, #10708E 15%, #00455C 97%);
+    border-color: #00455C;
+    color: white;
+    font-size: 16px;
+}
+
+#body-wrapper #content.container-fluid programstatus button.confirm {
+    background-color: #88af28;
+    background: -webkit-linear-gradient(top, #a1d030, #88af28);
+    border-color: #88af28;
+}
+
+#body-wrapper #content.container-fluid programstatus button.confirm:hover {
+    background-color: #88af28;
+    background: -webkit-linear-gradient(top, #88af28, #88af28);
+}
+
+#body-wrapper #content.container-fluid programstatus button.confirm:disabled {
+    background: #EEE;
+    border: #cccccc 1px solid;
+    color: #CCC;
+    cursor: default;
+}
+
+#body-wrapper #content.container-fluid button.confirm:hover {
+    background: -webkit-linear-gradient(bottom, #00455C, #00455C);
+    color: white;
+}
+
+#body-wrapper #content.container-fluid textarea {
+    border: 1px solid #AEC2D5 !important;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+}
+
+#body-wrapper #content.container-fluid input {
+    border: 1px solid #AEC2D5 !important;
+    border-radius: 0;
+    outline: none;
+    box-shadow: none;
+}
+
+#body-wrapper {
+    width: 100%;;
+}
+
+@media only screen and (min-width: 576px) {
+    header {
+        padding: 0 2em 0 2em !important;
+    }
+    div#body-wrapper,
+    div.body-wrapper {
+        padding: 0 2rem 0;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    header {
+        padding: 0 4em 0 4em !important;
+    }
+    div#body-wrapper,
+    div.body-wrapper {
+        padding: 0 4rem 0;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    header {
+        padding: 0 6em 0 6em !important;
+    }
+    div#body-wrapper,
+    div.body-wrapper {
+        padding: 0 6rem 0;
+    }
+}
+
+@media only screen and (min-width: 1280px) {
+    header {
+        padding: 0 8em 0 8em !important;
+    }
+    div#body-wrapper,
+    div.body-wrapper {
+        padding: 0 8rem 0;
+    }
+}
