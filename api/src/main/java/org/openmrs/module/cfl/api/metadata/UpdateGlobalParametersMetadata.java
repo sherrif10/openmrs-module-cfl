@@ -13,9 +13,9 @@ package org.openmrs.module.cfl.api.metadata;
 import org.openmrs.GlobalProperty;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.cfl.CfldistributionGlobalParameterConstants;
 import org.openmrs.module.cflcore.CFLConstants;
 import org.openmrs.module.cflcore.api.util.GlobalPropertiesConstants;
-import org.openmrs.module.cfl.CfldistributionGlobalParameterConstants;
 import org.openmrs.module.metadatadeploy.bundle.VersionedMetadataBundle;
 import org.openmrs.util.OpenmrsConstants;
 
@@ -29,7 +29,7 @@ import org.openmrs.util.OpenmrsConstants;
 public class UpdateGlobalParametersMetadata extends VersionedMetadataBundle {
   @Override
   public int getVersion() {
-    return 4;
+    return 5;
   }
 
   @Override
@@ -52,6 +52,7 @@ public class UpdateGlobalParametersMetadata extends VersionedMetadataBundle {
     updateGlobalPropertyIfExists(
         OpenmrsConstants.GLOBAL_PROPERTY_PERSON_ATTRIBUTE_SEARCH_MATCH_MODE,
         OpenmrsConstants.GLOBAL_PROPERTY_PERSON_ATTRIBUTE_SEARCH_MATCH_ANYWHERE);
+    updateGlobalPropertyIfExists(OpenmrsConstants.GP_VISIT_ASSIGNMENT_HANDLER, "");
   }
 
   private void updateCFLProperties() {

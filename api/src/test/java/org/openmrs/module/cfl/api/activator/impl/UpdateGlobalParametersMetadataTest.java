@@ -46,13 +46,13 @@ public class UpdateGlobalParametersMetadataTest {
   public void shouldReturnProperVersion() {
     int actual = updateGlobalParametersMetadata.getVersion();
 
-    assertEquals(4, actual);
+    assertEquals(5, actual);
   }
 
   @Test
   public void shouldUpdateGlobalProperties() {
     new UpdateGlobalParametersMetadata().installNewVersion();
 
-    verify(administrationService, times(8)).getGlobalPropertyObject(anyString());
+    verify(administrationService, times(9)).getGlobalPropertyObject(anyString());
   }
 }

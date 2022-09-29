@@ -23,9 +23,9 @@ import org.openmrs.api.context.ContextAuthenticationException;
 import org.openmrs.module.appframework.service.AppFrameworkService;
 import org.openmrs.module.appui.AppUiConstants;
 import org.openmrs.module.appui.UiSessionContext;
-import org.openmrs.module.cflcore.CFLConstants;
 import org.openmrs.module.cfl.CflWebConstants;
 import org.openmrs.module.cfl.api.service.UserNotAuthorizedService;
+import org.openmrs.module.cflcore.CFLConstants;
 import org.openmrs.module.emrapi.EmrApiConstants;
 import org.openmrs.module.emrapi.utils.GeneralUtils;
 import org.openmrs.ui.framework.UiUtils;
@@ -104,9 +104,7 @@ public class LoginPageController {
       PageModel model,
       UiUtils ui,
       PageRequest pageRequest,
-      @CookieValue(
-              value = CflWebConstants.COOKIE_NAME_LAST_SESSION_LOCATION,
-              required = false)
+      @CookieValue(value = CflWebConstants.COOKIE_NAME_LAST_SESSION_LOCATION, required = false)
           String lastSessionLocationId,
       @SpringBean("locationService") LocationService locationService,
       @SpringBean("appFrameworkService") AppFrameworkService appFrameworkService,
@@ -138,7 +136,7 @@ public class LoginPageController {
     if (StringUtils.isNotBlank(redirectUrl)) {
       String url = getRelativeUrl(redirectUrl, pageRequest);
       if (StringUtils.isNotBlank(url) && isRedirectURLTrusted(url)) {
-          return REDIRECT_PREFIX + url;
+        return REDIRECT_PREFIX + url;
       }
     }
     String url = ui.pageLink(CflWebConstants.MODULE_ID, "home");
@@ -213,8 +211,7 @@ public class LoginPageController {
 
   private boolean isLocationUserPropertyAvailable(AdministrationService administrationService) {
     String locationUserPropertyName =
-        administrationService.getGlobalProperty(
-            CflWebConstants.LOCATION_USER_PROPERTY_NAME);
+        administrationService.getGlobalProperty(CflWebConstants.LOCATION_USER_PROPERTY_NAME);
 
     return StringUtils.isNotBlank(locationUserPropertyName);
   }
@@ -223,20 +220,29 @@ public class LoginPageController {
     if (StringUtils.isNotBlank(redirectUrl)) {
       if (redirectUrl.startsWith(HTTP_PREFIX) || redirectUrl.startsWith(HTTPS_PREFIX)) {
         try {
-          URL url = new URL(redirectUrl);
-          String urlPath = url.getFile();
-          String urlContextPath = urlPath.substring(0, urlPath.indexOf('/', 1));
+          final URL url = new URL(redirectUrl);
+          final String urlContextPath = getContextPath(url);
+
           if (StringUtils.equals(pageRequest.getRequest().getContextPath(), urlContextPath)) {
             return true;
           }
         } catch (MalformedURLException e) {
           LOGGER.error(e.getMessage());
         }
-      } else if (redirectUrl.startsWith(pageRequest.getRequest().getContextPath())) {
-        return true;
+      } else {
+        return redirectUrl.startsWith(pageRequest.getRequest().getContextPath());
       }
     }
+
     return false;
+  }
+
+  private String getContextPath(URL url) {
+    final String urlPath = url.getFile();
+    final int contextEndIndex = urlPath.indexOf('/', 1);
+
+    return urlPath.substring(
+        0, contextEndIndex != -1 ? Math.min(contextEndIndex, urlPath.length()) : urlPath.length());
   }
 
   private String getRedirectUrlFromReferer(PageRequest pageRequest) {
@@ -279,7 +285,8 @@ public class LoginPageController {
       return redirectUrl;
     }
 
-    redirectUrl = getStringSessionAttribute(
+    redirectUrl =
+        getStringSessionAttribute(
             CflWebConstants.SESSION_ATTRIBUTE_REDIRECT_URL, pageRequest.getRequest());
     if (StringUtils.isNotBlank(redirectUrl)) {
       return redirectUrl;
@@ -309,7 +316,6 @@ public class LoginPageController {
    * @should send the user back to the login page if an invalid location is selected
    * @should send the user back to the login page when authentication fails
    */
-
   @SuppressWarnings({
     "checkstyle:ParameterNumber",
     "checkstyle:ParameterAssignment",
@@ -390,8 +396,7 @@ public class LoginPageController {
         // location
         Cookie cookie =
             new Cookie(
-                CflWebConstants.COOKIE_NAME_LAST_SESSION_LOCATION,
-                sessionLocationId.toString());
+                CflWebConstants.COOKIE_NAME_LAST_SESSION_LOCATION, sessionLocationId.toString());
         cookie.setSecure(true);
         cookie.setHttpOnly(true);
         pageRequest.getResponse().addCookie(cookie);
@@ -406,8 +411,7 @@ public class LoginPageController {
           // we set the username value to check it new or old user is trying to log in
           cookie =
               new Cookie(
-                  CflWebConstants.COOKIE_NAME_LAST_USER,
-                  String.valueOf(username.hashCode()));
+                  CflWebConstants.COOKIE_NAME_LAST_USER, String.valueOf(username.hashCode()));
           cookie.setSecure(true);
           cookie.setHttpOnly(true);
           pageRequest.getResponse().addCookie(cookie);
@@ -425,7 +429,7 @@ public class LoginPageController {
             if (isUrlWithinOpenmrs(pageRequest, redirectUrl)) {
               if (!redirectUrl.contains("login.") && isSameUser(pageRequest, username)) {
                 if (LOGGER.isDebugEnabled()) {
-                  LOGGER.debug("Redirecting user to " + redirectUrl.replaceAll("[\r\n]",""));
+                  LOGGER.debug("Redirecting user to " + redirectUrl.replaceAll("[\r\n]", ""));
                 }
                 if (StringUtils.isNotBlank(redirectUrl) && isRedirectURLTrusted(redirectUrl)) {
                   return REDIRECT_PREFIX + redirectUrl;
@@ -454,8 +458,7 @@ public class LoginPageController {
             .getSession()
             .setAttribute(
                 CflWebConstants.SESSION_ATTRIBUTE_ERROR_MESSAGE,
-                ui.message(
-                    "cfl.login.error.invalidLocation", sessionLocation.getName()));
+                ui.message("cfl.login.error.invalidLocation", sessionLocation.getName()));
       }
     } catch (ContextAuthenticationException ex) {
       if (LOGGER.isDebugEnabled()) {
@@ -497,8 +500,7 @@ public class LoginPageController {
   }
 
   private boolean isSameUser(PageRequest pageRequest, String username) {
-    String cookieValue =
-        pageRequest.getCookieValue(CflWebConstants.COOKIE_NAME_LAST_USER);
+    String cookieValue = pageRequest.getCookieValue(CflWebConstants.COOKIE_NAME_LAST_USER);
     int storedUsername = 0;
     if (StringUtils.isNotBlank(cookieValue)) {
       storedUsername = Integer.parseInt(cookieValue);
@@ -552,7 +554,7 @@ public class LoginPageController {
     int indexOfContextPath = aUrl.indexOf(pageRequest.getRequest().getContextPath());
     if (indexOfContextPath >= 0) {
       aUrl = aUrl.substring(indexOfContextPath);
-      LOGGER.debug("Relative redirect:" + aUrl.replaceAll("[\r\n]",""));
+      LOGGER.debug("Relative redirect:" + aUrl.replaceAll("[\r\n]", ""));
 
       return aUrl;
     }
