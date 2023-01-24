@@ -20,6 +20,8 @@ public final class CfldistributionConstants {
      */
     public static final String ETL_MODULE_ID = "etllite";
 
+    public static final String PROJECT_LOCATION_ATTRIBUTE_TYPE_NAME = "Project";
+
     private CfldistributionConstants() {
 
     }

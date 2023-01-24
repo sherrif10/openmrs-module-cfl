@@ -45,16 +45,6 @@
     </filter-mapping>
 
     <filter>
-        <filter-name>CflSecurityHeadersFilter</filter-name>
-        <filter-class>org.openmrs.module.cfl.filter.CflSecurityHeadersFilter</filter-class>
-    </filter>
-
-    <filter-mapping>
-        <filter-name>CflSecurityHeadersFilter</filter-name>
-        <url-pattern>/*</url-pattern>
-    </filter-mapping>
-
-    <filter>
         <filter-name>CflFixContentTypeFilter</filter-name>
         <filter-class>org.openmrs.module.cfl.filter.CflFixContentTypeFilter</filter-class>
     </filter>

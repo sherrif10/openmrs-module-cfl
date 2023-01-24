@@ -52,9 +52,7 @@
     <bean id="cflAdminProviderMetadata" class="org.openmrs.module.cfl.api.metadata.AdminProviderMetadata"/>
     <bean id="cflDbViewsMetadata"
           class="org.openmrs.module.cfl.api.metadata.views.DbViewsMetadata">
-        <constructor-arg>
-            <ref bean="dbSessionFactory"/>
-        </constructor-arg>
+        <constructor-arg ref="dbSessionFactory"/>
     </bean>
     <bean id="cflSuperAdminRoleMetadata"
           class="org.openmrs.module.cfl.api.metadata.SuperAdminRoleMetadata">
@@ -66,6 +64,19 @@
         <property name="locationService" ref="locationService"/>
         <property name="providerService" ref="providerService"/>
     </bean>
+    <bean id="cflCaptchaService" class="org.openmrs.module.cfl.api.service.impl.CaptchaServiceImpl">
+        <property name="reCaptchaAttemptService">
+            <bean class="org.openmrs.module.cfl.api.service.impl.ReCaptchaAttemptService" />
+        </property>
+    </bean>
+    <bean parent="serviceContext">
+        <property name="moduleService">
+            <list merge="true">
+                <value>org.openmrs.module.cfl.api.service.CaptchaService</value>
+                <ref bean="cflCaptchaService"/>
+            </list>
+        </property>
+    </bean>
     <bean id="cflUserNotAuthorizedService"
           class="org.openmrs.module.cfl.api.service.impl.UserNotAuthorizedServiceImpl">
         <property name="sessionFactory" ref="sessionFactory"/>
@@ -74,7 +85,17 @@
         <property name="moduleService">
             <list merge="true">
                 <value>org.openmrs.module.cfl.api.service.UserNotAuthorizedService</value>
-                <ref local="cflUserNotAuthorizedService"/>
+                <ref bean="cflUserNotAuthorizedService"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="cflCustomUserAppServiceImpl" class="org.openmrs.module.cfl.api.service.impl.CustomUserAppServiceImpl"/>
+    <bean parent="serviceContext">
+        <property name="moduleService">
+            <list merge="true">
+                <value>org.openmrs.module.cfl.api.service.CustomUserAppService</value>
+                <ref bean="cflCustomUserAppServiceImpl"/>
             </list>
         </property>
     </bean>

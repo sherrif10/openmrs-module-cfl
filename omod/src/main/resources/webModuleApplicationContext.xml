@@ -52,4 +52,17 @@
         </property>
     </bean>
 
+    <!-- Override exception OpenMRS Legacy UI exception page with our custom one -->
+    <bean name="cflExceptionResolver-override"
+          primary="true"
+          class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <map>
+                <entry key="org.openmrs.api.APIException" value="cflUncaughtException"/>
+            </map>
+        </property>
+        <property name="order" value="100" />
+    </bean>
+
+    <bean class="org.openmrs.module.cfl.web.CfLServletConfiguration" />
 </beans>

@@ -1,0 +1,10 @@
+{
+  "success": false,
+  "score": 1.23,
+  "action": "test",
+  "challenge_ts": "2023-01-13'T'13:00:00Z",
+  "hostname": "test-host",
+  "error-codes": [
+    "bad-request"
+  ]
+}

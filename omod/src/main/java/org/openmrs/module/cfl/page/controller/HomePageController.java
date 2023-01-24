@@ -9,27 +9,29 @@
  */
 
 /**
- * The contents of this file are subject to the OpenMRS Public License
- * Version 1.0 (the "License"); you may not use this file except in
- * compliance with the License. You may obtain a copy of the License at
- * http://license.openmrs.org
- *
- * Software distributed under the License is distributed on an "AS IS"
- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See the
- * License for the specific language governing rights and limitations
- * under the License.
- *
+ * The contents of this file are subject to the OpenMRS Public License Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License. You may obtain a copy of the
+ * License at http://license.openmrs.org
+ * <p>
+ * Software distributed under the License is distributed on an "AS IS" basis, WITHOUT WARRANTY OF
+ * ANY KIND, either express or implied. See the License for the specific language governing rights
+ * and limitations under the License.
+ * <p>
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 package org.openmrs.module.cfl.page.controller;
 
+import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.Location;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.appframework.context.AppContextModel;
+import org.openmrs.module.appframework.domain.Extension;
 import org.openmrs.module.appframework.service.AppFrameworkService;
 import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.cfl.CflWebConstants;
+import org.openmrs.module.cfl.api.service.CustomUserAppService;
 import org.openmrs.ui.framework.annotation.SpringBean;
 import org.openmrs.ui.framework.page.PageModel;
 import org.springframework.stereotype.Controller;
@@ -42,28 +44,32 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 @Controller
 public class HomePageController {
-	
-	protected final Log log = LogFactory.getLog(getClass());
-	
-	@RequestMapping(value = "/index.htm", method = RequestMethod.GET)
-	public String overrideHomepage() {
-		return "forward:/" + CflWebConstants.MODULE_ID + "/home.page";
-	}
 
-    /**
-     * @should limit which apps are shown on the homepage based on location
-     */
-    public Object controller(PageModel model,
-                             @SpringBean("appFrameworkService") AppFrameworkService appFrameworkService,
-                             UiSessionContext sessionContext) {
+  protected final Log log = LogFactory.getLog(getClass());
 
-        AppContextModel contextModel = sessionContext.generateAppContextModel();
+  @RequestMapping(value = "/index.htm", method = RequestMethod.GET)
+  public String overrideHomepage() {
+    return "forward:/" + CflWebConstants.MODULE_ID + "/home.page";
+  }
 
-        model.addAttribute("extensions",
-                appFrameworkService.getExtensionsForCurrentUser(CflWebConstants.HOME_PAGE_EXTENSION_POINT_ID, contextModel));
-        model.addAttribute("authenticatedUser", Context.getAuthenticatedUser());
+  /**
+   * @should limit which apps are shown on the homepage based on location
+   */
+  public Object controller(PageModel model,
+      @SpringBean("appFrameworkService") AppFrameworkService appFrameworkService,
+      UiSessionContext sessionContext) {
 
-        return null;
-    }
+    AppContextModel contextModel = sessionContext.generateAppContextModel();
+    List<Extension> currentExtensions = appFrameworkService.getExtensionsForCurrentUser(
+        CflWebConstants.HOME_PAGE_EXTENSION_POINT_ID, contextModel);
 
+    Location userLocation = Context.getUserContext().getLocation();
+    Context.getService(CustomUserAppService.class)
+        .setSpecificAppExtensionsByLocation(userLocation, currentExtensions);
+
+    model.addAttribute("extensions", currentExtensions);
+    model.addAttribute("authenticatedUser", Context.getAuthenticatedUser());
+
+    return null;
+  }
 }

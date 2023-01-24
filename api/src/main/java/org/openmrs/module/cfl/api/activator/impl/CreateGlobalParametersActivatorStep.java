@@ -11,12 +11,12 @@
 package org.openmrs.module.cfl.api.activator.impl;
 
 import org.apache.commons.logging.Log;
-import org.openmrs.module.cflcore.CFLConstants;
 import org.openmrs.module.cfl.CfldistributionGlobalParameterConstants;
 import org.openmrs.module.cfl.api.activator.ModuleActivatorStep;
+import org.openmrs.module.cflcore.CFLConstants;
 
-import static org.openmrs.module.cflcore.api.util.GlobalPropertyUtils.createGlobalSettingIfNotExists;
 import static org.openmrs.module.cfl.api.activator.impl.ModuleActivatorStepOrderEnum.CREATE_GLOBAL_PARAMETERS_ACTIVATOR_STEP;
+import static org.openmrs.module.cflcore.api.util.GlobalPropertyUtils.createGlobalSettingIfNotExists;
 
 /**
  * The bean defined in moduleApplicationContext.xml because OpenMRS performance issues with
@@ -41,5 +41,25 @@ public class CreateGlobalParametersActivatorStep implements ModuleActivatorStep 
     createGlobalSettingIfNotExists(
         CFLConstants.LOCATION_ATTRIBUTE_GLOBAL_PROPERTY_NAME,
         CfldistributionGlobalParameterConstants.CFL_LOCATION_ATTRIBUTE_TYPE_UUID);
+    createGlobalSettingIfNotExists(
+        CfldistributionGlobalParameterConstants.CFL_SHOW_STACKTRACE_IN_ERROR_PAGE_KEY,
+        CfldistributionGlobalParameterConstants.CFL_SHOW_STACKTRACE_IN_ERROR_PAGE_DEFAULT_VALUE,
+        CfldistributionGlobalParameterConstants.CFL_SHOW_STACKTRACE_IN_ERROR_PAGE_DESCRIPTION);
+    createGlobalSettingIfNotExists(
+        CfldistributionGlobalParameterConstants.GOOGLE_RECAPTCHA_SECRET_KEY,
+        CfldistributionGlobalParameterConstants.GOOGLE_RECAPTCHA_SECRET_VALUE,
+        CfldistributionGlobalParameterConstants.GOOGLE_RECAPTCHA_SECRET_DESCRIPTION);
+    createGlobalSettingIfNotExists(
+        CfldistributionGlobalParameterConstants.GOOGLE_RECAPTCHA_SITE_KEY,
+        CfldistributionGlobalParameterConstants.GOOGLE_RECAPTCHA_SITE_VALUE,
+        CfldistributionGlobalParameterConstants.GOOGLE_RECAPTCHA_SITE_DESCRIPTION);
+    createGlobalSettingIfNotExists(
+        CfldistributionGlobalParameterConstants.CAPTCHA_ENABLE_KEY,
+        CfldistributionGlobalParameterConstants.CAPTCHA_ENABLED_DEFAULT_VALUE,
+        CfldistributionGlobalParameterConstants.CAPTCHA_ENABLED_DESCRIPTION);
+    createGlobalSettingIfNotExists(
+        CfldistributionGlobalParameterConstants.GOOGLE_RECAPTCHA_MAX_FAILED_ATTEMPTS_KEY,
+        CfldistributionGlobalParameterConstants.GOOGLE_RECAPTCHA_MAX_FAILED_ATTEMPTS_DEFAULT_VALUE,
+        CfldistributionGlobalParameterConstants.GOOGLE_RECAPTCHA_MAX_FAILED_ATTEMPTS_DESCRIPTION);
   }
 }

@@ -12,8 +12,8 @@
     <packages>
         <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
             <filenameBase>07_Location_Attribute_Types</filenameBase>
-            <groupUuid>9d5c3faa-17cf-4b0d-92bc-40901b4ccea5</groupUuid>
-            <version>1</version>
+            <groupUuid>4b1a440d-d7c3-46ff-a5ba-1da4dd49a8f7</groupUuid>
+            <version>2</version>
             <importMode>MIRROR</importMode>
         </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
         <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
@@ -72,8 +72,8 @@
         </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
         <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
             <filenameBase>18_CfL_Configure_Metadata_Apps</filenameBase>
-            <groupUuid>d624e6f7-0163-4949-b2d8-c8d8eee5b653</groupUuid>
-            <version>2</version>
+            <groupUuid>3a351e39-5bb0-421b-b54d-35bdd42b0ccb</groupUuid>
+            <version>3</version>
             <importMode>MIRROR</importMode>
         </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
         <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
@@ -115,7 +115,13 @@
         </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
         <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
             <filenameBase>24_CFL_Charts_Apps</filenameBase>
-            <groupUuid>bc6eb7b7-ce15-417a-ad28-b2892160fec4</groupUuid>
+            <groupUuid>98db1cc1-c09e-4082-8eb2-2e2793c238b8</groupUuid>
+            <version>2</version>
+            <importMode>MIRROR</importMode>
+        </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+        <org.openmrs.module.emrapi.metadata.MetadataPackageConfig>
+            <filenameBase>25_Patient_Flags_Overview_Apps</filenameBase>
+            <groupUuid>e51be036-2d82-4c5d-8a59-4cabdeeed2c4</groupUuid>
             <version>1</version>
             <importMode>MIRROR</importMode>
         </org.openmrs.module.emrapi.metadata.MetadataPackageConfig>

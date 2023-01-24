@@ -98,6 +98,10 @@
 </script>
 <% } %>
 
+<% if (isCaptchaEnabled) { %>
+    <script src='https://www.google.com/recaptcha/api.js'></script>
+<% } %>
+
 <script type="text/javascript">
     jQuery(function () {
         var cannotLoginController = emr.setupConfirmationDialog({
@@ -177,6 +181,9 @@
                                         <input class="form-control form-control-sm form-control-lg form-control-md credential-input"
                                                id="password" type="password" name="password"/>
                                     </p>
+                                    <% if (isCaptchaEnabled) { %>
+                                        <div class="g-recaptcha" data-sitekey="${captchaSiteKey}"></div>
+                                    <% } %>
                                     <% } %>
 
                                     <% if (showSessionLocations) { %>

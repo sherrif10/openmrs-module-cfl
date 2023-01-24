@@ -10,20 +10,6 @@
 
 package org.openmrs.module.cfl.page.controller;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.openmrs.User;
-import org.openmrs.api.context.Context;
-import org.openmrs.module.Extension;
-import org.openmrs.module.appframework.service.AppFrameworkService;
-import org.openmrs.module.appui.UiSessionContext;
-import org.openmrs.ui.framework.page.PageModel;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Matchers.any;
@@ -32,6 +18,22 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.openmrs.User;
+import org.openmrs.api.context.Context;
+import org.openmrs.api.context.UserContext;
+import org.openmrs.module.Extension;
+import org.openmrs.module.appframework.service.AppFrameworkService;
+import org.openmrs.module.appui.UiSessionContext;
+import org.openmrs.module.cfl.api.service.CustomUserAppService;
+import org.openmrs.ui.framework.page.PageModel;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Context.class})
@@ -43,6 +45,10 @@ public class HomePageControllerTest {
 
   @Mock private UiSessionContext uiSessionContext;
 
+  @Mock private UserContext userContext;
+
+  @Mock private CustomUserAppService customUserAppService;
+
   @InjectMocks private HomePageController controller = new HomePageController();
 
   @Before
@@ -50,6 +56,8 @@ public class HomePageControllerTest {
     mockStatic(Context.class);
 
     when(Context.getAuthenticatedUser()).thenReturn(new User(1));
+    when(Context.getUserContext()).thenReturn(userContext);
+    when(Context.getService(CustomUserAppService.class)).thenReturn(customUserAppService);
   }
 
   @Test

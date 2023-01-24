@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
 
 /** HTTP Filter which adds additional security HTTP headers. */
@@ -36,11 +37,25 @@ public class CflSecurityHeadersFilter implements Filter {
    * use 'unsafe-eval', because knockout.js library is used in FE code.
    */
   private static final String CFL_CONTENT_SECURITY_POLICY =
-      "default-src 'self' 'unsafe-inline' 'unsafe-eval'; font-src data: 'self'; img-src data: 'self'";
+      "default-src 'self' ws://localhost:* localhost:* 'unsafe-inline' 'unsafe-eval' https://*.gstatic.com; "
+          + "script-src 'self' localhost:* 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/api.js https://www.gstatic.com; "
+          + "frame-src 'self' localhost:*  'unsafe-inline' 'unsafe-eval' https://www.google.com/; "
+          + "font-src data: 'self' localhost:* https://*.gstatic.com; "
+          + "img-src data: 'self' localhost:* https://*.github.io; "
+          + "style-src 'self' localhost:* 'unsafe-inline' https://*.googleapis.com";
 
   private static final String STRICT_TRANSPORT_SECURITY_HEADER = "Strict-Transport-Security";
   private static final String STRICT_TRANSPORT_SECURITY_VALUE =
       "max-age=63072000; includeSubDomains; preload";
+
+  private static final String X_CONTENT_TYPE_OPTIONS_HEADER = "X-Content-Type-Options";
+  private static final String X_CONTENT_TYPE_OPTIONS_VALUE = "nosniff";
+
+  private static final String X_FRAME_OPTIONS_HEADER = "X-Frame-Options";
+  private static final String X_FRAME_OPTIONS_VALUE = "SAMEORIGIN";
+
+  private static final String X_XSS_PROTECTION_HEADER = "X-XSS-Protection";
+  private static final String X_XSS_PROTECTION_VALUE = "1; mode=block";
 
   @Override
   public void init(FilterConfig filterConfig) {
@@ -52,20 +67,43 @@ public class CflSecurityHeadersFilter implements Filter {
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
       throws IOException, ServletException {
     if (servletResponse instanceof HttpServletResponse) {
-      HttpServletResponse httpServletResponse = ((HttpServletResponse) servletResponse);
-      httpServletResponse.addHeader(REFERRER_POLICY_HEADER, REFERRER_STRICT_ORIGIN);
-      httpServletResponse.addHeader(PERMISSIONS_POLICY_HEADER, CFL_PERMISSIONS_POLICY);
-      httpServletResponse.addHeader(CONTENT_SECURITY_POLICY_HEADER, CFL_CONTENT_SECURITY_POLICY);
-      // Browsers are going to ignore it for HTTP connections
-      httpServletResponse.addHeader(
-          STRICT_TRANSPORT_SECURITY_HEADER, STRICT_TRANSPORT_SECURITY_VALUE);
+      filterChain.doFilter(
+          servletRequest,
+          new SafeSecurityHeaderHttpResponse((HttpServletResponse) servletResponse));
+    } else {
+      filterChain.doFilter(servletRequest, servletResponse);
     }
-
-    filterChain.doFilter(servletRequest, servletResponse);
   }
 
   @Override
   public void destroy() {
     // nothing to do
+  }
+
+  public static final class SafeSecurityHeaderHttpResponse extends HttpServletResponseWrapper {
+
+    SafeSecurityHeaderHttpResponse(HttpServletResponse response) {
+      super(response);
+      addSecurityHeaders();
+    }
+
+    @Override
+    public void reset() {
+      super.reset();
+      addSecurityHeaders();
+    }
+
+    private void addSecurityHeaders() {
+      HttpServletResponse httpServletResponse = ((HttpServletResponse) getResponse());
+      httpServletResponse.setHeader(REFERRER_POLICY_HEADER, REFERRER_STRICT_ORIGIN);
+      httpServletResponse.setHeader(PERMISSIONS_POLICY_HEADER, CFL_PERMISSIONS_POLICY);
+      httpServletResponse.setHeader(CONTENT_SECURITY_POLICY_HEADER, CFL_CONTENT_SECURITY_POLICY);
+      // Browsers are going to ignore it for HTTP connections
+      httpServletResponse.setHeader(
+          STRICT_TRANSPORT_SECURITY_HEADER, STRICT_TRANSPORT_SECURITY_VALUE);
+      httpServletResponse.setHeader(X_CONTENT_TYPE_OPTIONS_HEADER, X_CONTENT_TYPE_OPTIONS_VALUE);
+      httpServletResponse.setHeader(X_FRAME_OPTIONS_HEADER, X_FRAME_OPTIONS_VALUE);
+      httpServletResponse.setHeader(X_XSS_PROTECTION_HEADER, X_XSS_PROTECTION_VALUE);
+    }
   }
 }

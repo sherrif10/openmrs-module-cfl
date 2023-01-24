@@ -24,7 +24,10 @@ import org.openmrs.module.appframework.service.AppFrameworkService;
 import org.openmrs.module.appui.AppUiConstants;
 import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.cfl.CflWebConstants;
+import org.openmrs.module.cfl.CfldistributionGlobalParameterConstants;
+import org.openmrs.module.cfl.api.service.CaptchaService;
 import org.openmrs.module.cfl.api.service.UserNotAuthorizedService;
+import org.openmrs.module.cfl.api.service.impl.ReCaptchaInvalidException;
 import org.openmrs.module.cflcore.CFLConstants;
 import org.openmrs.module.emrapi.EmrApiConstants;
 import org.openmrs.module.emrapi.utils.GeneralUtils;
@@ -201,6 +204,8 @@ public class LoginPageController {
     model.addAttribute("selectLocation", selectLocation);
     model.addAttribute("lastSessionLocation", lastSessionLocation);
     model.addAttribute("isStagingEnvironment", isStagingEnvironment());
+    model.addAttribute("isCaptchaEnabled", isCaptchaEnabled());
+    model.addAttribute("captchaSiteKey", getCaptchaSiteKey());
   }
 
   private boolean isStagingEnvironment() {
@@ -209,6 +214,27 @@ public class LoginPageController {
     return cflEnvironment != null && StringUtils.equalsIgnoreCase(cflEnvironment, STAGING);
   }
 
+  private boolean isCaptchaEnabled() {
+    return StringUtils.equalsIgnoreCase(
+        Context.getAdministrationService()
+            .getGlobalProperty(CfldistributionGlobalParameterConstants.CAPTCHA_ENABLE_KEY),
+        "true") && captchaKeysAvailable();
+  }
+  
+  private boolean captchaKeysAvailable() {
+    return StringUtils.isNotBlank(getCaptchaSiteKey()) && StringUtils.isNotBlank(getCaptchaSecretKey());
+  }
+  
+  private String getCaptchaSiteKey() {
+    return Context.getAdministrationService()
+        .getGlobalProperty(CfldistributionGlobalParameterConstants.GOOGLE_RECAPTCHA_SITE_KEY);
+  }
+  
+  private String getCaptchaSecretKey() {
+    return Context.getAdministrationService()
+        .getGlobalProperty(CfldistributionGlobalParameterConstants.GOOGLE_RECAPTCHA_SECRET_KEY);
+  }
+  
   private boolean isLocationUserPropertyAvailable(AdministrationService administrationService) {
     String locationUserPropertyName =
         administrationService.getGlobalProperty(CflWebConstants.LOCATION_USER_PROPERTY_NAME);
@@ -357,6 +383,9 @@ public class LoginPageController {
 
     try {
       if (!Context.isAuthenticated()) {
+        if (isCaptchaEnabled()) {
+          Context.getService(CaptchaService.class).processResponse(pageRequest.getRequest());
+        }
         Context.authenticate(username, password);
 
         if (isLocationUserPropertyAvailable(administrationService)) {
@@ -469,6 +498,15 @@ public class LoginPageController {
           .setAttribute(
               CflWebConstants.SESSION_ATTRIBUTE_ERROR_MESSAGE,
               ui.message(getAuthenticationErrorMessage(username)));
+    } catch (ReCaptchaInvalidException ex) {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Failed to authenticate user");
+      }
+      pageRequest
+          .getSession()
+          .setAttribute(
+              CflWebConstants.SESSION_ATTRIBUTE_ERROR_MESSAGE,
+              ui.message(CflWebConstants.MODULE_ID + ".error.captcha.message"));
     }
 
     if (LOGGER.isDebugEnabled()) {

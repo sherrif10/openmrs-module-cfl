@@ -10,15 +10,35 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 /**
- * Filter which sets correct content-type for special OpenMRS resources: openmrsmessages.js and
- * drugOrder.js. These resources are JavaScript files with JSP-logic applied onto them, see details
- * in openmrs-module-legacyui module.
+ * Filter which sets correct content-type for special OpenMRS resources:
+ *
+ * <ul>
+ *   <li>JavaScript for: openmrsmessages.js and rugOrder.js. These resources are JavaScript files
+ *       with JSP-logic applied onto them, see details in openmrs-module-legacyui module.
+ *   <li>
+ *   <li>JSON for: uicommons/messages/get.action. These resource reads translations.
+ * </ul>
+ *
+ * and d.
  */
 public class CflFixContentTypeFilter implements Filter {
   private static final String JAVASCRIPT_CONTENT_TYPE = "text/javascript;charset=UTF-8";
-  private static final String[] SPACIAL_RESOURCES = {"openmrsmessages.js", "drugOrder.js"};
+  private static final String[] JAVASCRIPT_RESOURCES = {
+    "openmrsmessages.js", "drugOrder.js", "dwr/interface/"
+  };
+
+  private static final String JSON_CONTENT_TYPE = "application/json;charset=UTF-8";
+  private static final String[] JSON_RESOURCES = {"uicommons/messages/get.action"};
+
+  private static final List<ContentTypeOverrideData> CONTENT_TYPES_OVERRIDES =
+      Arrays.asList(
+          new ContentTypeOverrideData(JAVASCRIPT_CONTENT_TYPE, JAVASCRIPT_RESOURCES),
+          new ContentTypeOverrideData(JSON_CONTENT_TYPE, JSON_RESOURCES));
 
   @Override
   public void init(FilterConfig filterConfig) {
@@ -29,28 +49,33 @@ public class CflFixContentTypeFilter implements Filter {
   public void doFilter(
       ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
       throws IOException, ServletException {
-    if (servletRequest instanceof HttpServletRequest
-        && isSpecialResourceRequest((HttpServletRequest) servletRequest)) {
+    final Optional<String> staticContentType =
+        servletRequest instanceof HttpServletRequest
+            ? getContentTypeOverride((HttpServletRequest) servletRequest)
+            : Optional.empty();
 
+    if (staticContentType.isPresent()) {
       filterChain.doFilter(
           servletRequest,
           new StaticContentTypeHttpServletResponseWrapper(
-              JAVASCRIPT_CONTENT_TYPE, (HttpServletResponse) servletResponse));
+              staticContentType.get(), (HttpServletResponse) servletResponse));
     } else {
       filterChain.doFilter(servletRequest, servletResponse);
     }
   }
 
-  private boolean isSpecialResourceRequest(HttpServletRequest servletHttpRequest) {
-    final String requestURI = servletHttpRequest.getRequestURI();
+  private Optional<String> getContentTypeOverride(HttpServletRequest servletRequest) {
+    final String requestURI = servletRequest.getRequestURI();
 
-    for (String resource : SPACIAL_RESOURCES) {
-      if (requestURI.contains(resource)) {
-        return true;
+    for (ContentTypeOverrideData contentTypeOverride : CONTENT_TYPES_OVERRIDES) {
+      for (String resourceToOverride : contentTypeOverride.resourceURLs) {
+        if (requestURI.contains(resourceToOverride)) {
+          return Optional.of(contentTypeOverride.contentType);
+        }
       }
     }
 
-    return false;
+    return Optional.empty();
   }
 
   @Override
@@ -91,6 +116,16 @@ public class CflFixContentTypeFilter implements Filter {
     @Override
     public void setContentType(String type) {
       super.setContentType(staticContentType);
+    }
+  }
+
+  private static class ContentTypeOverrideData {
+    final String contentType;
+    final String[] resourceURLs;
+
+    private ContentTypeOverrideData(String contentType, String[] resourceURLs) {
+      this.contentType = contentType;
+      this.resourceURLs = resourceURLs.clone();
     }
   }
 }
