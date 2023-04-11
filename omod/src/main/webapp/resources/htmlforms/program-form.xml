@@ -1149,6 +1149,6 @@
             </button>
         </div>
         <postSubmissionAction class="org.openmrs.module.cflcore.api.htmlformentry.action.RemoveEncounterAction"/>
-        <redirectOnSave url="/htmlformentryui/htmlform/enterHtmlFormWithStandardUi.page?patientId={{patient.id}}&amp;formUuid=ad796f8c-b966-11eb-9ad8-0242ac120002&amp;returnUrl=/openmrs/coreapps/clinicianfacing/patient.page?patientId={{patient.id}}"/>
+        <redirectOnSave url="/coreapps/clinicianfacing/patient.page?patientId={{patient.id}}"/>
     </ifMode>
 </htmlform>
